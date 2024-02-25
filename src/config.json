@@ -1,0 +1,10 @@
+{
+    "name":"CryptoMonos Dash",
+    "website":"https://www.cryptomonos.com/",
+    "twitter":"https://twitter.com/CryptoMonosNFT",
+    "discord":"https://discord.gg/4aFqc8c4ZD",
+    "rpc":"https://sei-rpc.brocha.in",
+    "network":"pacific-1", 
+    "collection_address":"sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl", 
+    "nft_name_type": "default"
+}
