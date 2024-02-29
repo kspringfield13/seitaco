@@ -4,9 +4,7 @@ import { useWalletConnect } from "hooks/walletConnect"
 import config from "config.json"
 import Wallet, { DropdownItem } from "components/wallet"
 import { getSigningCosmWasmClient } from "@sei-js/core"
-import ChartComponent from 'components/chart';
-import StatsContainer from 'components/stats';
-import DoubleChart from 'components/doublechart';
+import ChartDataContainer from 'components/data';
 
 const MONOS_CONTRACT_PACIFIC_1 = "sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl"
 
@@ -117,42 +115,7 @@ const Home = () => {
                 {/* Include ChartComponent only if the wallet is connected and the user is a token holder */}
                 {wallet && isTokenHolder && (
                     <>
-                        <StatsContainer /* pass any required props to StatsContainer here */ />
-                        <C.ChartsContainer>
-                            <C.ChartWrapper>
-                                <ChartComponent
-                                    apiKey="AIzaSyBOfUsNid2OYs-ChLUw3lNG15GXiKnY59I"
-                                    spreadsheetId="1o1jIzmka7PPL_08NBP5x9_7jgUpdJrwXL3_sDflS0ic"
-                                    range="Sheet1!A:L"
-                                    chartId="floorChart"
-                                    chartTitle="Floor Price"
-                                    label="Floor Price (SEI)"
-                                    dataSet="FloorPrice"
-                                />
-                            </C.ChartWrapper>
-                            <C.ChartWrapper>
-                                <ChartComponent
-                                    apiKey="AIzaSyBOfUsNid2OYs-ChLUw3lNG15GXiKnY59I"
-                                    spreadsheetId="1o1jIzmka7PPL_08NBP5x9_7jgUpdJrwXL3_sDflS0ic"
-                                    range="Sheet1!A:L"
-                                    chartId="volumeChart"
-                                    chartTitle="Volume"
-                                    label="Volume (SEI)"
-                                    dataSet="Volume"
-                                />
-                            </C.ChartWrapper>
-                        </C.ChartsContainer>
-                        <C.ChartsContainerFull>
-                            <C.ChartWrapperFull>
-                                <DoubleChart
-                                apiKey="AIzaSyBOfUsNid2OYs-ChLUw3lNG15GXiKnY59I"
-                                spreadsheetId="1o1jIzmka7PPL_08NBP5x9_7jgUpdJrwXL3_sDflS0ic"
-                                range="Sheet1!A:N"
-                                chartId="doubleChart"
-                                // Add any other props you need for DoubleChart
-                                />
-                            </C.ChartWrapperFull>
-                        </C.ChartsContainerFull>
+                        <ChartDataContainer />
                     </>
                 )}
             </C.Container>

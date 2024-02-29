@@ -43,20 +43,12 @@ export const ChartsContainerFull = styled.div`
   justify-content: space-between;
   align-items: stretch;
   gap: 20px;
-
-  @media (max-width: 1200px) {
-    flex-wrap: wrap; 
-  }
-
-  @media (max-width: 768px) {
-    flex-wrap: wrap; 
-  }
 `;
 
 export const ChartWrapperFull = styled.div`
   flex: 1; /* Allows charts to grow and fill the space */
   max-width: 100%; /* Sets a maximum width for each chart */
-  padding-bottom: 25px;
+  padding-bottom: 20px;
   border-radius: 8px; /* If your charts have rounded corners */
 
   @media (max-width: 1200px) {
@@ -116,6 +108,7 @@ export const Home = styled.div`
     background-color: ${color.bg};
     min-height:100vh;
     height:100%;
+    margin-top: -30px;
 `
 
 export const Bg = styled.div`
@@ -135,7 +128,8 @@ export const Bg = styled.div`
 export const Container = styled.div`
     max-width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding-right: 10px;
+    padding-left: 10px;
     height:100%;
     width:100%;
     position:relative;
@@ -146,14 +140,13 @@ export const Container = styled.div`
 `
 
 export const Header = styled.div`
-    padding-top:20px;
+    padding-top:35px;
     display:flex;
     justify-content:space-between;
     align-items:center;
 
     @media (max-width: 768px) {
-        flex-direction:column;
-        padding-top:24px;
+        padding-top:35px;
         &>*:nth-child(2){
             margin:8px 0;
         }
@@ -161,7 +154,18 @@ export const Header = styled.div`
 `
 
 export const Logo = styled.img`
-    width:250px;
+    width: 150px;
+    margin-bottom: -10px;
+    margin-top: -15px;
+    padding-left: 4px;
+
+    @media (max-width: 768px) {
+        width: 150px;
+        margin-bottom: 0px;
+        margin-top: -15px;
+        padding-left: 0px;
+        padding-top: 7px;
+    }
 `
 
 export const WalletConnect = styled.button`
@@ -206,132 +210,4 @@ export const WBalance = styled.div`
 
 export const WAddress = styled.div`
     color:${color.black};
-`
-
-export const Launch = styled.div<{showMintedNfts?:string}>`
-    margin-top:16px;
-    min-height:769px;
-    background: linear-gradient(180deg, #15232D 0%, #0A141B 100%);
-    box-shadow: 0px 11.8109px 53.1492px rgba(0, 0, 0, 0.35);
-    border-radius: 16px;
-    padding:70px 56px;
-    display:flex;
-    position:relative;
-    &::before {
-        pointer-events: none;
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: 16px; 
-        padding: 1px; 
-        background:linear-gradient(137deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0)); 
-        -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-                mask-composite: exclude; 
-    }
-    overflow:hidden;
-
-    ${props => props.showMintedNfts === 'true' && `
-        padding-top:16px;
-    `}
-
-    @media (max-width: 768px) {
-        flex-direction:column-reverse;
-        padding:24px;
-
-        ${props => props.showMintedNfts === 'true' && `
-        flex-direction:column;
-        `}
-    }
-`
-
-export const LaunchBg = styled.div`
-    background-image:url('/images/mintbg.png');
-    background-position: 100% 0%;
-    background-repeat: no-repeat;
-    background-size: 50%;
-    position:absolute;
-    top:0;
-    right:0;
-    z-index:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-`
-
-export const Mid = styled.div`
-    flex:.33;
-`
-
-export const Loading = styled.div`
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    width:100%;
-    font-size:28px;
-    color:${color.whiteShade};
-` 
-
-export const Title = styled.div`
-    font-size:32px;
-    font-weight:500;
-
-    @media (max-width: 768px) {
-        display:none;
-    }
-`
-
-export const TitleMobile = styled.div`
-    display:none;
-
-    @media (max-width: 768px) {
-        display:block;
-        font-size:32px;
-        font-weight:500;
-        margin-bottom:16px;
-    }
-`
-
-export const Links = styled.div`
-    display:flex;
-    gap: 1.2rem;
-    margin-top: 25px;
-`
-
-export const Link = styled.a`
-    color:${color.primary};
-    font-size: 25px;
-    &:hover{
-        opacity: 80%;
-    }
-`
-
-export const Image = styled.div`
-    width:100%;
-
-    img {
-        width:100%;
-        border-radius:16px;
-    }
-`
-
-export const Nft = styled.div`
-    display:flex;
-    align-items:center;
-    border-radius:8px;
-    border:1px solid ${color.primary};
-    padding:16px;
-    background-color:${color.secondaryLight};
-`
-
-export const NftImage = styled.img`
-    width:90px;
-    height:90px;
-    border-radius:8px;
-`
-
-export const NftTitle = styled.div`
-    margin-left:16px;
 `

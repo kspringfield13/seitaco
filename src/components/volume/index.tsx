@@ -1,65 +1,35 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import moment from 'moment';
-import { ChartsContainer } from './style';
-import { ChartWrapper } from './style';
-import { downsampleData } from 'utils/helpers';
 
 interface ChartProps {
-  apiKey: string;
-  spreadsheetId: string;
-  range: string;
   chartId: string;
   chartTitle: string;
   label: string;
-  dataSet: 'FloorPrice' | 'Volume';
+  data: any[];
 }
 
 const ChartComponent: React.FC<ChartProps> = ({
-  apiKey,
-  spreadsheetId,
-  range,
   chartId,
   chartTitle,
-  label,
-  dataSet,
+  data, // Now using data from props.
 }) => {
   const [chartInstance, setChartInstance] = useState<Chart | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        processChartData(data.values, dataSet);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchData();
-  }, [apiKey, spreadsheetId, range, dataSet]);
-
-  const processChartData = (rows: any[], dataSet: 'FloorPrice' | 'Volume') => {
-    if (rows.length > 1) {
-      const dataRows = rows.slice(1);
-      
-      // Apply downsampling to your data
-      const downsampledLabels = downsampleData(
-        dataRows.map(row => moment(row[0], 'YYYY-MM-DD HH:mm:ss').format('MMM D, ha'))
-      );
-
-      // Determine which dataset to use based on the dataSet prop
-      const downsampledData = downsampleData(
-        dataRows.map(row => +row[dataSet === 'FloorPrice' ? 8 : 9])
-      );
-
-      // Use the downsampled data for rendering the chart
-      renderChart(downsampledLabels, downsampledData, label);
+    // Directly call processChartData using the passed data, no need to fetch data here.
+    if (data) {
+      processChartData(data);
     }
+  }, [data]); // Reacting to changes in data prop.
+
+  const processChartData = (data: any[]) => {
+    const chartLabels = data.map(item => moment(item.timestamp).format('MMM D, ha'));
+    const dataValues = data.map(item => item.volume); // Assuming item.floor correctly represents the FloorPrice
+    const label = "Volume"; // Static label for Floor Price
+  
+    renderChart(chartLabels, dataValues, label);
   };
 
   const renderChart = (chartLabels: string[], dataValues: number[], label: string) => {
@@ -147,11 +117,7 @@ const ChartComponent: React.FC<ChartProps> = ({
   };
 
   return (
-    <ChartsContainer>
-      <ChartWrapper>
         <canvas ref={canvasRef} id={chartId}></canvas>
-      </ChartWrapper>
-    </ChartsContainer>
   );
 };
 

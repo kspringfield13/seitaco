@@ -90,7 +90,7 @@ interface Stats {
 
 // Props interface if you need to pass any props to the StatsContainer
 interface StatsContainerProps {
-  // Define any props here
+  data: any;
 }
 
 function formatNumber(num: number): string {
@@ -98,86 +98,29 @@ function formatNumber(num: number): string {
 }
 
 // Component
-const StatsContainer: React.FC = () => {
+const StatsContainer: React.FC<StatsContainerProps> = ({ data }) => {
     // State to store the owners count
     const [ownersCount, setOwnersCount] = useState<number>(0);
 
-    const [stats, setStats] = useState<Stats>({
-        listed: 0,
-        daySales: 0,
-        dayVolume: '0',
-        floorPrice: '0 SEI',
-        totalVolume: '0 SEI',
-        floorPriceImage: 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
-        totalVolumeImage: 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
-        daySalesImage: 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
-        dayVolumeImage: 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
-        });
-
-    useEffect(() => {
-        const apiKey = 'AIzaSyBOfUsNid2OYs-ChLUw3lNG15GXiKnY59I';
-        const spreadsheetId = '1o1jIzmka7PPL_08NBP5x9_7jgUpdJrwXL3_sDflS0ic';
-        const range = 'Sheet1!A:N';
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
-    
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-            // Assuming the last row contains the latest stats
-            const latestRow = data.values[data.values.length - 1];
-            
-            // Parse the data and update the state
-            setStats(prevStats => ({
-                ...prevStats,
-                listed: latestRow[7], // Replace with the correct index
-                daySales: latestRow[10], // Replace with the correct index
-                dayVolume: formatNumber(parseFloat(latestRow[11])),  // Replace with the correct index
-                floorPrice: latestRow[8] + ' SEI', // Replace with the correct index and add ' SEI'
-                totalVolume: formatNumber(parseFloat(latestRow[9])) + ' SEI', // Replace with the correct index and add ' SEI'
-            }));
-            })
-            .catch(error => {
-            console.error('Error:', error);
-            });
-    
-        }, []);
-
-    useEffect(() => {
-        // Define your API key and spreadsheet details
-        const apiKey = 'AIzaSyBOfUsNid2OYs-ChLUw3lNG15GXiKnY59I';
-        const spreadsheetId = '1x28vxBRTeP9h-STSsjQlJSzk-qpzADiPtHoQPoL82_c';
-        const range = 'Sheet1!B:B';
-
-        // Construct the API URL
-        const ownersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
-
-        // Fetch the data from Google Sheets API
-        fetch(ownersUrl)
-        .then(response => {
-            if (!response.ok) {
-            throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.values) {
-            // Assuming each row in the specified range contains an owner
-            const uniqueOwners = new Set(data.values.map((row: string[]) => row[0]));
-            const uniqueOwnersCount = uniqueOwners.size;
-            setOwnersCount(uniqueOwnersCount); // Update the state with the owners count
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching owners count:', error);
-        });
-    }, []); // Empty dependency array means this effect runs once on mount
+    const stats = {
+        owners: data?.owners || 0,
+        listed: data?.auction_count || 0, // Assuming 'listed' is part of your data structure
+        daySales: data?.num_sales_24hr || 0,
+        dayVolume: formatNumber(data?.volume_24hr || 0) + ' SEI',
+        floor: `${data?.floor || 0} SEI`,
+        volume: formatNumber(data?.volume || 0) + ' SEI',
+        floorPriceImage: data?.floorPriceImage || 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
+        totalVolumeImage: data?.totalVolumeImage || 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
+        daySalesImage: data?.daySalesImage || 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
+        dayVolumeImage: data?.dayVolumeImage || 'https://storage.googleapis.com/cryptomonos/monos/sei_logo.png',
+    };
 
     return (
         <>
             <StatsContainerDiv>
                 <StatPillDiv>
                     <StatTitle>Owners</StatTitle>
-                    <StatValue>{ownersCount}</StatValue>
+                    <StatValue>{stats.owners}</StatValue>
                 </StatPillDiv>
                 <StatPillDiv>
                     <StatTitle>Listed</StatTitle>
@@ -187,22 +130,24 @@ const StatsContainer: React.FC = () => {
             <StatsContainerDiv>
                 <StatPillDiv>
                     <StatTitle>24HR Sales</StatTitle>
-                    <StatValue>{stats.daySales}</StatValue>
+                    <span><StatValue>{stats.daySales}</StatValue></span>
+                    <StatImage src={stats.daySalesImage} alt="SEI Logo"/>
                 </StatPillDiv>
                 <StatPillDiv>
                     <StatTitle>24HR Volume</StatTitle>
-                    <StatValue>{stats.dayVolume}</StatValue>
+                    <span><StatValue>{stats.dayVolume}</StatValue></span>
+                    <StatImage src={stats.dayVolumeImage} alt="SEI Logo"/>
                 </StatPillDiv>
             </StatsContainerDiv>
             <StatsContainerDiv>
                 <StatPillDiv>
                     <StatTitle>Floor Price</StatTitle>
-                    <span><StatValue>{stats.floorPrice}</StatValue></span>
+                    <span><StatValue>{stats.floor}</StatValue></span>
                     <StatImage src={stats.floorPriceImage} alt="SEI Logo"/>
                 </StatPillDiv>
                 <StatPillDiv>
                     <StatTitle>Total Volume</StatTitle>
-                    <span><StatValue>{stats.totalVolume}</StatValue></span>
+                    <span><StatValue>{stats.volume}</StatValue></span>
                     <StatImage src={stats.totalVolumeImage} alt="SEI Logo"/>
                 </StatPillDiv>
             </StatsContainerDiv>

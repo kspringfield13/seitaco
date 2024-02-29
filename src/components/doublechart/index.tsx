@@ -1,64 +1,55 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import moment from 'moment';
-import { ChartsContainer, ChartWrapper } from './style';
 
 interface DoubleChartProps {
-    apiKey: string;
-    spreadsheetId: string;
-    range: string;
     chartId: string;
+    data: any[];
+}
+
+interface DataItem {
+  timestamp: string;
+  average_price_24hr: number;
+  volume_24hr: number;
 }
 
 const DoubleChart: React.FC<DoubleChartProps> = ({
-  apiKey,
-  spreadsheetId,
-  range,
   chartId,
+  data
 }) => {
+  const [chartInstance, setChartInstance] = useState<Chart | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        processChartData(data.values);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchData();
-  }, [apiKey, spreadsheetId, range]);
-
-  const processChartData = (rows: any[]) => {
-    if (rows.length > 1) {
-      // Group rows by day
-      const groupedByDay = rows.slice(1).reduce((acc: Record<string, any>, row: any) => {
-        const day = moment(row[0], 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD'); // Extract the day
-        if (!acc[day]) {
-          acc[day] = [];
-        }
-        acc[day].push(row);
-        return acc;
-      }, {});
-  
-      // For each group, select the last row
-      const dailyData = Object.values(groupedByDay).map((dayRows: any[]) => dayRows[dayRows.length - 1]);
-  
-      // Now, you have one row per day, proceed as before
-      const labels = dailyData.map(row => moment(row[0], 'YYYY-MM-DD HH:mm:ss').format('MMM D'));
-      const SalesPrices = dailyData.map(row => +row[13]);
-      const DayVolumes = dailyData.map(row => +row[11]);
-  
-      renderDoubleChart(labels, SalesPrices, DayVolumes);
+    // Directly call processChartData using the passed data, no need to fetch data here.
+    if (data) {
+      processChartData(data);
     }
+  }, [data]);
+
+  const processChartData = (data: DataItem[]) => {
+    // Group data by day
+    const groupedByDay = data.reduce<Record<string, DataItem[]>>((acc, item) => {
+      const day = moment(item.timestamp).format('YYYY-MM-DD');
+      if (!acc[day]) {
+        acc[day] = [];
+      }
+      acc[day].push(item);
+      return acc;
+    }, {});
+  
+    // Extract the last entry for each day
+    const lastEntries = Object.values(groupedByDay).map((entries) => entries[entries.length - 1]);
+  
+    // Prepare data for chart
+    const labels = lastEntries.map(item => moment(item.timestamp).format('MMM D, ha'));
+    const salesDayData = lastEntries.map(item => item.average_price_24hr);
+    const volumeDayData = lastEntries.map(item => item.volume_24hr);
+  
+    renderDoubleChart(labels, salesDayData, volumeDayData);
   };
 
-  const renderDoubleChart = (labels: string[], SalesPrices: number[], DayVolumes: number[]) => {
+  const renderDoubleChart = (labels: string[], salesDayData: number[], volumeDayData: number[]) => {
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {
       let gradient = ctx.createLinearGradient(0, 0, 0, 200);
@@ -69,6 +60,10 @@ const DoubleChart: React.FC<DoubleChartProps> = ({
       gradient2.addColorStop(0, 'rgba(21, 231, 182, 1)');
       gradient2.addColorStop(1, 'rgba(72, 195, 221, 0.2)');
 
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
       const newChartInstance = new Chart(ctx, {
         type: 'bar', // Base type for a mixed chart
         data: {
@@ -76,7 +71,7 @@ const DoubleChart: React.FC<DoubleChartProps> = ({
           datasets: [
             {
               label: 'Avg Sales Price (SEI)',
-              data: SalesPrices,
+              data: salesDayData,
               borderColor: gradient,
               borderWidth: 2,
               pointBackgroundColor: 'rgba(21, 231, 182, 1)',
@@ -90,7 +85,7 @@ const DoubleChart: React.FC<DoubleChartProps> = ({
             },
             {
               label: 'Daily Volume (SEI)',
-              data: DayVolumes,
+              data: volumeDayData,
               backgroundColor: gradient2,
               borderColor: gradient2,
               yAxisID: 'y-axis-volume',
@@ -128,7 +123,7 @@ const DoubleChart: React.FC<DoubleChartProps> = ({
               },
               // Align the grid to the left axis
               grid: {
-                drawOnChartArea: false, // only draw the grid for this axis
+                drawOnChartArea: false,
               },
             },
           },
@@ -148,19 +143,12 @@ const DoubleChart: React.FC<DoubleChartProps> = ({
         },
       });
 
-      // Cleanup the chart instance on component unmount
-      return () => {
-        newChartInstance.destroy();
-      };
+      setChartInstance(newChartInstance);
     }
   };
 
   return (
-    <ChartsContainer>
-      <ChartWrapper>
         <canvas ref={canvasRef} id={chartId}></canvas>
-      </ChartWrapper>
-    </ChartsContainer>
   );
 };
 
