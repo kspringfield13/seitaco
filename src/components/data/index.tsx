@@ -10,7 +10,8 @@ const ChartDataContainer: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const serverUrl = 'http://127.0.0.1:3001/get-data';
+      const serverUrl = 'https://seitaco-server-1d85377b001f.herokuapp.com/get-data';
+      //const serverUrl = 'http://127.0.0.1:5000/get-data';
       try {
         const response = await fetch(serverUrl);
         const data = await response.json();
