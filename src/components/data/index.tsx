@@ -5,16 +5,23 @@ import StatsContainer from '../stats';
 import DoubleChart from '../doublechart'; // This will be your Volume chart component
 import * as C from "./style"
 
-const ChartDataContainer: React.FC = () => {
+interface ChartDataContainerProps {
+  collectionSlug: string; // Define the prop type
+}
+
+const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug }) => {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const serverUrl = 'https://seitaco-server-1d85377b001f.herokuapp.com/get-data';
-      //const serverUrl = 'http://127.0.0.1:5000/get-data';
+      // Update serverUrl to use query parameters for collectionSlug
+      const cacheBuster = new Date().getTime();
+      const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-data?collectionSlug=${encodeURIComponent(collectionSlug)}&_=${cacheBuster}`;
       try {
-        const response = await fetch(serverUrl);
+        console.log('Requesting URL:', serverUrl);
+        const response = await fetch(serverUrl, { cache: "no-store" });
         const data = await response.json();
+        console.log('Received data:', data);
         setChartData(data);
       } catch (error) {
         console.error('Error:', error);
@@ -22,7 +29,7 @@ const ChartDataContainer: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [collectionSlug]); // React to changes in collectionSlug
 
   // Assuming the latest row is the last item in the array
   const latestRow = chartData[chartData.length - 1];

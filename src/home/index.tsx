@@ -5,6 +5,7 @@ import config from "config.json"
 import Wallet, { DropdownItem } from "components/wallet"
 import { getSigningCosmWasmClient } from "@sei-js/core"
 import ChartDataContainer from 'components/data';
+import Leaderboard from 'components/leaderboard'
 
 const MONOS_CONTRACT_PACIFIC_1 = "sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl"
 
@@ -23,6 +24,10 @@ const Home = () => {
     const [showAccessDenied, setShowAccessDenied] = useState(false);
 
     const [isTokenHolder, setIsTokenHolder] = useState<boolean | null>(null);
+    const [selectedCollectionSlug, setSelectedCollectionSlug] = useState('');
+
+    const [showLeaderboard, setShowLeaderboard] = useState<boolean>(true);
+
 
     useEffect(() => {
         const checkTokenOwnership = async () => {
@@ -40,6 +45,7 @@ const Home = () => {
                 const result = await client.queryContractSmart(contractAddress, query);
                 const isTokenOwner = result.tokens && result.tokens.length > 0;
                 setIsTokenHolder(isTokenOwner);
+                setShowLeaderboard(isTokenOwner);
 
                 if (isTokenOwner) {
                     setShowAccessGranted(true); // Show the Access Granted message
@@ -66,7 +72,7 @@ const Home = () => {
         if (showAccessGranted) {
           const timer = setTimeout(() => {
             setShowAccessGranted(false);
-          }, 1000);
+          }, 3000);
           return () => clearTimeout(timer);
         }
     }, [showAccessGranted]);
@@ -80,11 +86,16 @@ const Home = () => {
         }
     }, [showAccessDenied]);
 
+    const resetToLeaderboard = () => {
+        setSelectedCollectionSlug(''); // Reset the selected collection slug
+        setShowLeaderboard(true); // Ensure the leaderboard is shown again
+    };
+
     return (
         <C.Home>
             <C.Container>
                 <C.Header>
-                    <C.Logo src="/images/logo.png" />
+                    <C.Logo src="/images/logo.png" onClick={resetToLeaderboard} style={{cursor: 'pointer'}} />
                     {wallet === null ? (
                         <C.WalletConnect onClick={openWalletConnect}>Connect Wallet</C.WalletConnect>
                     ) : (
@@ -112,11 +123,15 @@ const Home = () => {
                     <C.AccessDenied>Access Denied</C.AccessDenied>
                     </C.Overlay>
                 )}
-                {/* Include ChartComponent only if the wallet is connected and the user is a token holder */}
-                {wallet && isTokenHolder && (
-                    <>
-                        <ChartDataContainer />
-                    </>
+                {/* Conditional rendering for Leaderboard and ChartDataContainer */}
+                {wallet && isTokenHolder && showLeaderboard && !selectedCollectionSlug && (
+                    <Leaderboard onSelectCollection={(slug) => {
+                        setSelectedCollectionSlug(slug);
+                        setShowLeaderboard(false); // Hide leaderboard once a collection is selected
+                    }} />
+                )}
+                {wallet && isTokenHolder && selectedCollectionSlug && (
+                    <ChartDataContainer collectionSlug={selectedCollectionSlug} />
                 )}
             </C.Container>
         </C.Home>
