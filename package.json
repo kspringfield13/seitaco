@@ -1,6 +1,6 @@
 {
-  "name": "launchpad",
-  "version": "0.3.7",
+  "name": "seitaco",
+  "version": "0.0.1",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-brands-svg-icons": "^6.2.0",
