@@ -9,27 +9,46 @@ interface ChartDataContainerProps {
   collectionSlug: string; // Define the prop type
 }
 
+const cleanSlug = (slug: string) => {
+  return slug.toLowerCase().replace(/[^a-z_]/g, '');
+};
+
 const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug }) => {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Update serverUrl to use query parameters for collectionSlug
+      const cleanedSlug = cleanSlug(collectionSlug);
+      const cacheKey = `chartData-${cleanedSlug}`;
+      const cachedData = localStorage.getItem(cacheKey);
       const cacheBuster = new Date().getTime();
-      const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-data?collectionSlug=${encodeURIComponent(collectionSlug)}&_=${cacheBuster}`;
-      try {
-        console.log('Requesting URL:', serverUrl);
-        const response = await fetch(serverUrl, { cache: "no-store" });
-        const data = await response.json();
-        console.log('Received data:', data);
-        setChartData(data);
-      } catch (error) {
-        console.error('Error:', error);
+      const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-data?collectionSlug=${encodeURIComponent(cleanedSlug)}&_=${cacheBuster}`;
+
+      if (cachedData) {
+        // Use cached data
+        setChartData(JSON.parse(cachedData));
+      } else {
+        // Fetch new data
+        try {
+          console.log('Requesting URL:', serverUrl);
+          const response = await fetch(serverUrl, { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          console.log('Received data:', data);
+          // Update state with fetched data
+          setChartData(data);
+          // Cache the fetched data
+          localStorage.setItem(cacheKey, JSON.stringify(data));
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
       }
     };
 
     fetchData();
-  }, [collectionSlug]); // React to changes in collectionSlug
+  }, [collectionSlug]);
 
   // Assuming the latest row is the last item in the array
   const latestRow = chartData[chartData.length - 1];

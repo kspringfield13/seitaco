@@ -39,7 +39,7 @@ const Home = () => {
     const [showAccessDenied, setShowAccessDenied] = useState(false);
 
     const [isTokenHolder, setIsTokenHolder] = useState<boolean | null>(null);
-    const [selectedCollectionSlug, setSelectedCollectionSlug] = useState('');
+    const [selectedCollectionSlug, setSelectedCollectionSlug] = useState<string>('');
 
     const [showLeaderboard, setShowLeaderboard] = useState<boolean>(true);
     const [collectionInfo, setCollectionInfo] = useState<CollectionDetailsType | null>(null);
@@ -116,6 +116,10 @@ const Home = () => {
         setShowLeaderboard(true); // Ensure the leaderboard is shown again
     };
 
+    const cleanSlug = (slug: string): string => {
+        return slug.toLowerCase().replace(/[^a-z_]/g, '');
+    };
+
     return (
         <C.Home>
             <C.Container>
@@ -151,7 +155,8 @@ const Home = () => {
                 {/* Conditional rendering for Leaderboard and ChartDataContainer */}
                 {wallet && isTokenHolder && showLeaderboard && !selectedCollectionSlug && (
                     <Leaderboard onSelectCollection={(slug) => {
-                        setSelectedCollectionSlug(slug);
+                        const cleanedSlug = cleanSlug(slug);
+                        setSelectedCollectionSlug(cleanedSlug);
                         setShowLeaderboard(false); // Hide leaderboard once a collection is selected
                     }} />
                 )}
