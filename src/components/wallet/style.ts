@@ -4,6 +4,7 @@ import { Hex2Rgba } from "utils/helpers"
 
 export const Wallet = styled.div`
     background-color:${color.primary};
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     padding:0px 16px;
     height:43px;
     border-radius:8px;
@@ -25,16 +26,19 @@ export const WBalance = styled.div`
     border-radius:8px;
     margin-right:16px;
     font-size:12px;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 `
 
 export const WAddress = styled.div`
     color:${color.black};
     font-weight:500;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 `
 
 
 export const DropdownButtonContent = styled.div<{side?:string, mobileSide?:string}>`
     background: ${Hex2Rgba(color.primary,1)};
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     color: ${color.black};
     position: absolute;
     ${props => props.side === "left" ? "left: 0" : "right: 0"};
@@ -55,6 +59,7 @@ export const DropdownButtonContent = styled.div<{side?:string, mobileSide?:strin
 
 export const DropdownButton = styled.div<{dropdownOpen : boolean, text:string, customIcon? : any}>`
     position: relative;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 
     & > button > svg{
         transition:all .1s ease-in-out;
@@ -87,6 +92,7 @@ export const DropdownButton = styled.div<{dropdownOpen : boolean, text:string, c
 `
 
 export const DropdownItem = styled.div<{active? : string}>`
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     padding: 10px 20px;
     font-size: 14px;
     display: flex;

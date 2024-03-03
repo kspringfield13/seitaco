@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react"
+import styled from 'styled-components';
 import * as C from "./style"
 import { useWalletConnect } from "hooks/walletConnect"
 import config from "config.json"
 import Wallet, { DropdownItem } from "components/wallet"
 import { getSigningCosmWasmClient } from "@sei-js/core"
-import ChartDataContainer from 'components/data';
+import ChartDataContainer from 'components/data'
 import Leaderboard from 'components/leaderboard'
+import { CollectionDetailsType, collectionMapping } from 'utils/helpers'
+import CollectionDetails from 'components/details';
+import WalletStatusDisplay from 'components/display'; 
 
 const MONOS_CONTRACT_PACIFIC_1 = "sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl"
 
@@ -17,6 +21,17 @@ const getMonosContract = (network: string) => {
     }
 }
 
+const DetailsAndChartContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 20px; // Adjust the gap as needed
+
+  @media (max-width: 768px) { // Adjust breakpoint as needed
+    flex-direction: column;
+  }
+`;
+
 const Home = () => {
     const { openWalletConnect, wallet, disconnectWallet } = useWalletConnect();
     const [balance] = useState('');
@@ -27,6 +42,8 @@ const Home = () => {
     const [selectedCollectionSlug, setSelectedCollectionSlug] = useState('');
 
     const [showLeaderboard, setShowLeaderboard] = useState<boolean>(true);
+    const [collectionInfo, setCollectionInfo] = useState<CollectionDetailsType | null>(null);
+    const [showWalletStatus, setShowWalletStatus] = useState(true);
 
 
     useEffect(() => {
@@ -86,6 +103,14 @@ const Home = () => {
         }
     }, [showAccessDenied]);
 
+    // Update the effect to set collection information based on the selected slug
+    useEffect(() => {
+        if (selectedCollectionSlug) {
+            const info = collectionMapping[selectedCollectionSlug];
+            setCollectionInfo(info);
+        }
+    }, [selectedCollectionSlug]);
+
     const resetToLeaderboard = () => {
         setSelectedCollectionSlug(''); // Reset the selected collection slug
         setShowLeaderboard(true); // Ensure the leaderboard is shown again
@@ -130,8 +155,29 @@ const Home = () => {
                         setShowLeaderboard(false); // Hide leaderboard once a collection is selected
                     }} />
                 )}
-                {wallet && isTokenHolder && selectedCollectionSlug && (
-                    <ChartDataContainer collectionSlug={selectedCollectionSlug} />
+                {wallet && isTokenHolder && selectedCollectionSlug && collectionInfo && (
+                    <>
+                        <CollectionDetails
+                        logoSrc={collectionInfo.logoSrc} // Replace with actual logo source
+                        collectionName={collectionInfo.name}
+                        supply={collectionInfo.supply}
+                        website={collectionInfo.website}
+                        twitter={collectionInfo.twitter}
+                        discord={collectionInfo.discord}
+                        backgroundImageSrc={collectionInfo.backgroundImageSrc}
+                        mintDate={collectionInfo.mintDate}
+                        mintPrice={collectionInfo.mintPrice}
+                        address={collectionInfo.address}
+                        />
+                        <ChartDataContainer collectionSlug={selectedCollectionSlug} />
+                    </>
+                )}
+                {!wallet && showWalletStatus && (
+                    <WalletStatusDisplay
+                      message="Buy a CryptoMonos for Access "
+                      imageUrl="https://storage.googleapis.com/cryptomonos/monos/logo_him_bg.png"
+                      buttonUrl="https://beta.mrkt.exchange/collection/sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl"
+                    />
                 )}
             </C.Container>
         </C.Home>
