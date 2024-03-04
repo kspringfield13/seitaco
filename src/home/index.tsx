@@ -66,10 +66,6 @@ const Tooltip = styled.div`
     font-size: 14px;
     @media (max-width: 768px) {
       font-size: 10px;
-      width: auto;
-      left: 0;
-      right: 0;
-      margin: auto;
     }
   }
 `;
@@ -217,16 +213,21 @@ const Home = () => {
 
     // Update the effect to set collection information based on the selected slug
     useEffect(() => {
-        if (selectedCollectionSlug) {
-            const info = collectionMapping[selectedCollectionSlug];
-            setCollectionInfo(info);
-        }
+      if (selectedCollectionSlug) {
+          const info = collectionMapping[selectedCollectionSlug];
+          setCollectionInfo(info);
+  
+          // Scroll to the top of the page
+          window.scrollTo(0, 0);
+      }
     }, [selectedCollectionSlug]);
 
     const resetToLeaderboard = () => {
-        setSelectedCollectionSlug(''); // Reset the selected collection slug
-        setShowLeaderboard(true); // Ensure the leaderboard is shown again
-    };
+      setSelectedCollectionSlug('');
+      setShowLeaderboard(true);
+      
+      window.scrollTo(0, 0);
+  };
 
     const cleanSlug = (slug: string): string => {
         return slug.toLowerCase().replace(/[^a-z_]/g, '');
