@@ -28,9 +28,9 @@ const CollectionRow = styled.div`
   }
 
   @media (max-width: 768px) {
-    // Adjust for mobile view
+    padding-left: 7px;
     font-size: 14px;
-    grid-template-columns: 20px 50px auto;
+    grid-template-columns: 20px 40px auto;
     grid-template-areas:
       "rank logo name value"
       "rank logo stats stats";
@@ -52,7 +52,7 @@ const Rank = styled.div`
 
   @media (max-width: 768px) {
     // Adjust for mobile view
-    font-size: 18px;
+    font-size: 12px;
     padding: 2px;
   }
 `;
@@ -64,7 +64,7 @@ const LogoImage = styled.img`
   border-radius: 20%;
   margin-left: 5px;
   @media (max-width: 768px) {
-
+    margin-left: 0px;
     width: 42px;
     height: 42px;
   }
@@ -79,7 +79,7 @@ const Name = styled.div`
 
   @media (max-width: 768px) {
     // Adjust for mobile view
-    font-size: 14px;
+    font-size: 12px;
     padding: 2px;
   }
 `;
