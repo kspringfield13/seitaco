@@ -9,7 +9,7 @@ const LeaderboardContainer = styled.div`
 
 const CollectionRow = styled.div`
   display: grid;
-  grid-template-columns: 35px 85px auto; // Space for rank, logo, and the rest of the content
+  grid-template-columns: 40px 85px auto; // Space for rank, logo, and the rest of the content
   grid-template-rows: auto auto; // Two rows for content
   grid-template-areas:
     "rank logo name name name name value"
@@ -29,7 +29,8 @@ const CollectionRow = styled.div`
 
   @media (max-width: 768px) {
     // Adjust for mobile view
-    grid-template-columns: 25px 75px auto;
+    font-size: 14px;
+    grid-template-columns: 20px 80px auto;
     grid-template-areas:
       "rank logo name value"
       "rank logo stats stats";
@@ -48,6 +49,12 @@ const Rank = styled.div`
   background-color: black;
   border-radius: 20%;
   // Other styles as needed
+
+  @media (max-width: 768px) {
+    // Adjust for mobile view
+    font-size: 18px;
+    padding: 2px;
+  }
 `;
 
 const LogoImage = styled.img`
@@ -55,7 +62,7 @@ const LogoImage = styled.img`
   width: 75px; // Adjust width as needed
   height: 75px; // Adjust height as needed
   border-radius: 20%;
-  // Other styles as needed
+  margin-left: 5px;
 `;
 
 const Name = styled.div`
@@ -64,7 +71,12 @@ const Name = styled.div`
   font-weight: bold;
   color: #FFF;
   padding-left: 3px;
-  // Other styles as needed
+
+  @media (max-width: 768px) {
+    // Adjust for mobile view
+    font-size: 16px;
+    padding: 2px;
+  }
 `;
 
 const Value = styled.div`
@@ -85,6 +97,10 @@ const Stats = styled.div`
   align-items: center;
   font-size: 18px; // Adjust font size as needed
   color: #FFF;
+  @media (max-width: 768px) {
+    // Adjust for mobile view
+    font-size: 14px;
+  }
 `;
 
 const FloorPriceImage = styled.img`
@@ -133,7 +149,9 @@ interface LeaderboardData {
   listed: number;
   daySales: number;
   dayVolume: number;
-  floorPrice: string;
+  floorPrice: number; // assuming this remains a string
+  previousFloorPrice: number; // changed to number
+  last_updated: string;
 }
 
 interface LeaderboardProps {
@@ -145,23 +163,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
-      const cacheKey = 'leaderboardData';
-      const cached = localStorage.getItem(cacheKey);
-      const now = new Date();
-
-      if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-        const cachedTime = new Date(timestamp);
-        const differenceInMinutes = (now.getTime() - cachedTime.getTime()) / (1000 * 60);
-
-        if (differenceInMinutes < 3) {
-          // Use cached data if it's less than 3 minutes old
-          setLeaderboardData(data);
-          return;
-        }
-        // If cached data is older than 3 minutes, fetch new data
-      }
-
       const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-leaderboard`;
       try {
         const response = await fetch(serverUrl);
@@ -170,7 +171,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
         }
         const data: LeaderboardData[] = await response.json();
         setLeaderboardData(data);
-        localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
       } catch (error) {
         console.error('Error fetching leaderboard data:', error);
       }
@@ -179,10 +179,44 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
     fetchLeaderboardData();
   }, []);
 
+  const renderFloorPriceWithChange = (floorPrice: number, previousFloorPrice: number) => {
+    // If previousFloorPrice is 0.0, do not render the component
+    if (previousFloorPrice === 0.0) {
+      return (
+        <Stat>
+          <DataValue>{floorPrice} SEI</DataValue>
+          <StaticText>Floor</StaticText>
+        </Stat>
+      );
+    }
+  
+    // Check if there's no change in floor price
+    if (floorPrice === previousFloorPrice) {
+      return (
+        <Stat>
+          <DataValue>{floorPrice} SEI</DataValue>
+          <StaticText>Floor</StaticText>
+        </Stat>
+      );
+    }
+  
+    const percentageChange = ((floorPrice - previousFloorPrice) / previousFloorPrice) * 100;
+    const changeDirection = percentageChange >= 0 ? '▲' : '▼';
+    const changeColor = percentageChange >= 0 ? 'green' : 'red';
+  
+    return (
+      <Stat>
+        <span style={{ color: changeColor }}>{changeDirection} {Math.abs(percentageChange).toFixed(2)}%</span>
+        <DataValue> {floorPrice} SEI</DataValue>
+        <StaticText>Floor</StaticText>
+      </Stat>
+    );
+  };
+
   return (
     <LeaderboardContainer>
-    {leaderboardData.map((data) => (
-      <CollectionRow key={data.slug} onClick={() => onSelectCollection(data.slug)}>
+    {leaderboardData.map((data, index) => (
+      <CollectionRow key={index} onClick={() => onSelectCollection(data.slug)}>
         <Rank>{data.rank}</Rank>
         <LogoImage src={data.logoSrc} alt={`${data.name} logo`} />
         <Name>{data.name}</Name>
@@ -197,11 +231,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
         </Stat>
         </StatsContainer>
         <Stats>
-          <Stat>
-              <DataValue>{data.floorPrice} SEI</DataValue>
-              <FloorPriceImage src="https://storage.googleapis.com/cryptomonos/monos/sei_logo.png" alt="sei" />
-              <StaticText>Floor</StaticText>
-          </Stat>
+        {renderFloorPriceWithChange(data.floorPrice, data.previousFloorPrice)}
           <Stat>
             <DataValue>{data.listed}</DataValue>
             <StaticText>Listed</StaticText>

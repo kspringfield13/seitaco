@@ -26,7 +26,6 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh; // Take up full viewport height
-  padding-bottom: 200px;
 `;
 
 const Image = styled.img`

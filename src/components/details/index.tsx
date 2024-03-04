@@ -180,11 +180,16 @@ const AddressInfo = styled.a`
   font-size: 1.2em; // Smaller font size
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   padding-top: 7px;
+  padding-left: 5px;
   margin: 0;
   color: #fff; // Set the text color
   text-decoration: none; // Remove underline from links
   &:hover {
     text-decoration: underline; // Underline on hover
+  }
+
+  @media (max-width: 768px) {
+    padding-left: 0px;
   }
 `;
 

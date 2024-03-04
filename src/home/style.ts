@@ -147,6 +147,7 @@ export const Header = styled.div`
 
     @media (max-width: 768px) {
         padding-top:35px;
+        padding-bottom: 5px;
         &>*:nth-child(2){
             margin:8px 0;
         }
@@ -160,7 +161,7 @@ export const Logo = styled.img`
     padding-left: 4px;
 
     @media (max-width: 768px) {
-        width: 150px;
+        width: 100px;
         margin-bottom: 0px;
         margin-top: -15px;
         padding-left: 0px;

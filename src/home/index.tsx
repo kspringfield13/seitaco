@@ -27,6 +27,41 @@ interface SEIPriceResponse {
     };
 }
 
+const InfoIcon = styled.div`
+  cursor: pointer;
+  color: black;
+  background-color: #15E7B6;
+  font-size: 20px;
+  padding: 2px 10px 2px 10px;
+  border-radius: 20%;
+  position: relative; // This enables absolute positioning for children
+`;
+
+const Tooltip = styled.div`
+  position: absolute;
+  right: 50%; // Adjust this value to control the tooltip position
+  top: 100%;
+  visibility: hidden;
+  width: 400px; // Adjust based on the size of your tooltip
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  // Hide the tooltip by default and only show it when the InfoIcon is hovered
+  ${InfoIcon}:hover & {
+    visibility: visible;
+    font-size: 14px;
+  }
+`;
+
+const ConnectWalletButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px; // Adjust the gap between the info icon and the Connect Wallet button
+`;
+
 const DetailsAndChartContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -74,7 +109,7 @@ const SEIPriceTicker: React.FC = () => {
     const arrowDirection = seiPriceInfo.priceChangePercentage < 0 ? '▼' : '▲'; // down arrow for negative, up arrow for positive
 
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
         <img src="https://storage.googleapis.com/cryptomonos/monos/sei_logo.png" alt="SEI Token" style={{ marginRight: '10px', width: '28px', height: '28px', marginBottom: '2px' }} />
         <span>{seiPriceInfo.price}</span>
         <span style={{ marginLeft: '5px', color: priceChangeColor }}>
@@ -178,6 +213,20 @@ const Home = () => {
                 <C.Header>
                     <C.Logo src="/images/logo.png" onClick={resetToLeaderboard} style={{cursor: 'pointer'}} />
                     <SEIPriceTicker />
+                    <ConnectWalletButtonContainer>
+                    <InfoIcon>
+                        ℹ️ {/* You can replace this with an SVG or an image for the info icon */}
+                        <Tooltip>
+                        <p><u>Welcome to SeiTa.co</u></p>
+                        <p>SEI PFP Collections Ranked by Floor Price</p>
+                        <p>Click on a collection to view more data</p>
+                        <p>Sales = 24HR Sales</p>
+                        <p>Volume = 24HR Volume</p>
+                        <p>Listed = Current Pallet Listings</p>
+                        <p>Floor = Current Pallet Floor</p>
+                        <p>% Change = 24HR Floor Change</p>
+                        </Tooltip>
+                    </InfoIcon>
                     {wallet === null ? (
                         <C.WalletConnect onClick={openWalletConnect}>Connect Wallet</C.WalletConnect>
                     ) : (
@@ -192,6 +241,7 @@ const Home = () => {
                             </Wallet>
                         </>
                     )}
+                    </ConnectWalletButtonContainer>
                 </C.Header>
                 {/* Overlay for Access Granted Message */}
                 {showAccessGranted && (
