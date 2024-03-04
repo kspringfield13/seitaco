@@ -29,25 +29,29 @@ interface SEIPriceResponse {
 
 const InfoIcon = styled.div`
   cursor: pointer;
-  color: black;
-  background-color: #15E7B6;
-  font-size: 20px;
-  padding: 2px 10px 2px 10px;
-  border-radius: 20%;
-  position: relative; // This enables absolute positioning for children
+  color: white;
+  font-weight: bold;
+  font-size: 30px;
+  padding: 2px 2px 2px 2px;
+  position: relative;
+  @media (max-width: 768px) { // Adjust breakpoint as needed
+    font-size: 20px;
+  }
 `;
 
 const Tooltip = styled.div`
   position: absolute;
-  right: 50%; // Adjust this value to control the tooltip position
+  left: 20%; // Start by positioning the tooltip's left edge at the center of the InfoIcon
   top: 100%;
+  transform: translateX(-50%); // Adjusts the tooltip back to the left by half its width, centering it relative to the InfoIcon
   visibility: hidden;
-  width: 400px; // Adjust based on the size of your tooltip
-  background-color: black;
+  width: 520px; // Adjust based on the size of your tooltip
+  background-color: #121212;
   color: white;
-  text-align: center;
-  padding: 5px 0;
+  text-align: left;
+  padding: 5px;
   border-radius: 6px;
+  // Correct the typo from 'left-left' to 'margin-left', if needed. However, it might not be necessary with the transform approach.
 
   // Hide the tooltip by default and only show it when the InfoIcon is hovered
   ${InfoIcon}:hover & {
@@ -86,16 +90,22 @@ const SEIPriceTicker: React.FC = () => {
           const data = await response.json();
           if (data && data.length > 0) {
             const { current_price, price_change_percentage_24h } = data[0];
-            setSeiPriceInfo({
+            const updatedSeiPriceInfo = {
               price: `$${current_price.toFixed(2)}`,
-              priceChangePercentage: price_change_percentage_24h,
-            });
-          } else {
-            setSeiPriceInfo({ ...seiPriceInfo, price: 'Unavailable' });
+              priceChangePercentage: parseFloat(price_change_percentage_24h.toFixed(1)),
+            };
+            setSeiPriceInfo(updatedSeiPriceInfo);
+            localStorage.setItem('seiPriceInfo', JSON.stringify(updatedSeiPriceInfo)); // Update cache
           }
         } catch (error) {
           console.error("Failed to fetch SEI price:", error);
-          setSeiPriceInfo({ ...seiPriceInfo, price: 'Failed to load' });
+          // Load from cache if fetch fails
+          const cachedData = localStorage.getItem('seiPriceInfo');
+          if (cachedData) {
+              setSeiPriceInfo(JSON.parse(cachedData));
+          } else {
+              setSeiPriceInfo(prevState => ({ ...prevState, price: '' }));
+          }
         }
     };
   
@@ -110,18 +120,19 @@ const SEIPriceTicker: React.FC = () => {
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
-        <img src="https://storage.googleapis.com/cryptomonos/monos/sei_logo.png" alt="SEI Token" style={{ marginRight: '10px', width: '28px', height: '28px', marginBottom: '2px' }} />
-        <span>{seiPriceInfo.price}</span>
-        <span style={{ marginLeft: '5px', color: priceChangeColor }}>
-          {arrowDirection} {Math.abs(seiPriceInfo.priceChangePercentage).toFixed(2)}%
-        </span>
+        <img src="https://storage.googleapis.com/cryptomonos/monos/sei_logo.png" alt="SEI Token" style={{ marginRight: '10px', width: '30px', height: '30px' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '12px' , textAlign: 'left' }}>
+          <div>{seiPriceInfo.price}</div>
+          <div style={{ color: priceChangeColor }}>
+            <span>{arrowDirection} {Math.abs(seiPriceInfo.priceChangePercentage).toFixed(1)}%</span>
+          </div>
+        </div>
       </div>
     );
 };
 
 const Home = () => {
     const { openWalletConnect, wallet, disconnectWallet } = useWalletConnect();
-    const [balance] = useState('');
     const [showAccessGranted, setShowAccessGranted] = useState(false);
     const [showAccessDenied, setShowAccessDenied] = useState(false);
 
@@ -214,25 +225,28 @@ const Home = () => {
                     <C.Logo src="/images/logo.png" onClick={resetToLeaderboard} style={{cursor: 'pointer'}} />
                     <SEIPriceTicker />
                     <ConnectWalletButtonContainer>
-                    <InfoIcon>
-                        ℹ️ {/* You can replace this with an SVG or an image for the info icon */}
+                    {showLeaderboard && (
+                      <InfoIcon>
+                        ⓘ {/* You can replace this with an SVG or an image for the info icon */}
                         <Tooltip>
-                        <p><u>Welcome to SeiTa.co</u></p>
-                        <p>SEI PFP Collections Ranked by Floor Price</p>
-                        <p>Click on a collection to view more data</p>
-                        <p>Sales = 24HR Sales</p>
-                        <p>Volume = 24HR Volume</p>
-                        <p>Listed = Current Pallet Listings</p>
-                        <p>Floor = Current Pallet Floor</p>
-                        <p>% Change = 24HR Floor Change</p>
+                          <p><u>Welcome to SeiTa.co</u></p>
+                          <p>SEI PFP Collections Ranked by Floor Price</p>
+                          <p>- Click on a collection to view more data</p>
+                          <p>- Click the PFP on collection page to buy from MRKT</p>
+                          <p>- Data refreshed every 5 minutes</p>
+                          <p>*Sales = 24HR Sales</p>
+                          <p>*Volume = 24HR Volume</p>
+                          <p>*Listed = Current Pallet Listings</p>
+                          <p>*Floor = Current Pallet Floor</p>
+                          <p>*% Change = 24HR Floor Change</p>
                         </Tooltip>
-                    </InfoIcon>
+                      </InfoIcon>
+                    )}
                     {wallet === null ? (
-                        <C.WalletConnect onClick={openWalletConnect}>Connect Wallet</C.WalletConnect>
+                        <C.WalletConnect onClick={openWalletConnect}>Connect</C.WalletConnect>
                     ) : (
                         <>
                             <Wallet
-                                balance={balance + " SEI"}
                                 address={wallet!.accounts[0].address}
                             >
                                 <DropdownItem onClick={() => navigator.clipboard.writeText(wallet!.accounts[0].address)}>Copy Address</DropdownItem>

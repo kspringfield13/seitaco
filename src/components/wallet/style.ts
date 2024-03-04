@@ -5,7 +5,7 @@ import { Hex2Rgba } from "utils/helpers"
 export const Wallet = styled.div`
     background-color:${color.primary};
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    padding:0px 16px;
+    padding:0px 5px;
     height:43px;
     border-radius:8px;
     font-size:14px;

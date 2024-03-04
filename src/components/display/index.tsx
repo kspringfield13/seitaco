@@ -34,11 +34,11 @@ const Image = styled.img`
   border-radius: 20px;
 
   @media (max-width: 1200px) {
-    max-width: 600px;
+    max-width: 400px;
   }
 
   @media (max-width: 768px) {
-    max-width: 400px;
+    max-width: 300px;
   }
 `;
 
@@ -47,9 +47,8 @@ const Message = styled.p`
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   margin-bottom: 20px;
   margin-top: 5px;
-
   @media (max-width: 768px) {
-    font-size: 1.9em;
+    font-size: 1.6em;
   }
 `;
 

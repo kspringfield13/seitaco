@@ -60,8 +60,7 @@ const WalletConnectProvider = ({ children }: any) => {
 
 const wallets = [
     ["leap", require("./assets/leap.png")], ["keplr", require("./assets/keplr.png")], ["fin", require("./assets/fin.png")],
-    ["compass", require("./assets/compass.png")], ["falcon", require("./assets/falcon.png")], ["coin98", require("./assets/coin98.png")]
-]
+    ["compass", require("./assets/compass.png")]]
 
 const WalletConnectModal = ({ connectWallet }: any) => {
     const { isModalOpen, closeWalletConnect } = useContext(WalletConnectContext)

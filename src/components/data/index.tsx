@@ -28,7 +28,7 @@ const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug 
         const cachedTime = new Date(timestamp);
         const differenceInMinutes = (now.getTime() - cachedTime.getTime()) / (1000 * 60);
 
-        if (differenceInMinutes < 3) {
+        if (differenceInMinutes < 2) {
           // Use cached data if it's less than 3 minutes old
           setChartData(data);
           return;

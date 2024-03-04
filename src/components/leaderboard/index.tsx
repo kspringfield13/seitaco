@@ -161,9 +161,23 @@ interface LeaderboardProps {
 const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
 
+  // Cache structure
+  let cache = {
+    data: null as LeaderboardData[] | null,
+    timestamp: 0, // Epoch time in milliseconds
+  };
+
   useEffect(() => {
     const fetchLeaderboardData = async () => {
       const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-leaderboard`;
+
+      // Check if cache is valid (less than 2 minutes old)
+      const now = new Date().getTime();
+      if (cache.data && now - cache.timestamp < 120000) { // 120000 milliseconds = 2 minutes
+        setLeaderboardData(cache.data);
+        return; // Use cached data
+      }
+
       try {
         const response = await fetch(serverUrl);
         if (!response.ok) {
@@ -171,6 +185,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
         }
         const data: LeaderboardData[] = await response.json();
         setLeaderboardData(data);
+
+        // Update cache
+        cache = {
+          data,
+          timestamp: new Date().getTime(), // Update timestamp with current time
+        };
       } catch (error) {
         console.error('Error fetching leaderboard data:', error);
       }

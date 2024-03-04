@@ -173,12 +173,12 @@ export const WalletConnect = styled.button`
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     background-color:${color.primary};
     color:${color.black};
-    padding:0px 24px;
+    padding: 10px;
     height:43px;
     display:flex;
     align-items:center;
     border-radius:8px;
-    font-size:18px;
+    font-size:16px;
     font-weight:500;
     cursor:pointer;
     transition:all .1s ease-in-out;
@@ -192,27 +192,4 @@ export const WalletConnect = styled.button`
         border:none;
         background-color:${Hex2Rgba(color.primary, .5)};
     }
-`
-
-export const WalletConnected = styled.div`
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    background-color:${color.primary};
-    padding:8px 16px;
-    border-radius:8px;
-    font-size:14px;
-    display:flex;
-    align-items:center;
-`
-
-export const WBalance = styled.div`
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; 
-    padding:8px 16px;
-    background-color:${color.secondaryLight};
-    border-radius:8px;
-    margin-right:16px;
-`
-
-export const WAddress = styled.div`
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    color:${color.black};
 `
