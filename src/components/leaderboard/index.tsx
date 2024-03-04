@@ -79,8 +79,8 @@ const Name = styled.div`
 
   @media (max-width: 768px) {
     // Adjust for mobile view
-    font-size: 12px;
-    padding: 2px;
+    font-size: 11px;
+    padding: 3px;
   }
 `;
 

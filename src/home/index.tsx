@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import * as C from "./style"
 import { useWalletConnect } from "hooks/walletConnect"
 import config from "config.json"
@@ -9,7 +9,14 @@ import ChartDataContainer from 'components/data'
 import Leaderboard from 'components/leaderboard'
 import { CollectionDetailsType, collectionMapping } from 'utils/helpers'
 import CollectionDetails from 'components/details';
-import WalletStatusDisplay from 'components/display'; 
+import WalletStatusDisplay from 'components/display';
+
+const GlobalStyle = createGlobalStyle`
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+`;
 
 const MONOS_CONTRACT_PACIFIC_1 = "sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl"
 
@@ -57,6 +64,13 @@ const Tooltip = styled.div`
   ${InfoIcon}:hover & {
     visibility: visible;
     font-size: 14px;
+    @media (max-width: 768px) {
+      font-size: 10px;
+      width: auto;
+      left: 0;
+      right: 0;
+      margin: auto;
+    }
   }
 `;
 
@@ -219,6 +233,8 @@ const Home = () => {
     };
 
     return (
+      <>
+        <GlobalStyle />
         <C.Home>
             <C.Container>
                 <C.Header>
@@ -303,6 +319,7 @@ const Home = () => {
                 )}
             </C.Container>
         </C.Home>
+      </>
     );
 
 }
