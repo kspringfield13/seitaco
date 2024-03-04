@@ -128,6 +128,10 @@ margin-left: 0px;
 margin-bottom: -5px;
 border-radius: 20px;
 padding-top: 0px;
+@media (max-width: 768px) {
+    width: 80px;
+    border-radius: 10px;
+}
 `;
 
 const InfoContainer = styled.div`
@@ -150,6 +154,9 @@ font-size: 1.8em; // Smaller font size for the top bar
 margin: 0px;
 margin-bottom: -5px;
 font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+@media (max-width: 768px) {
+    font-size: 24px;
+}
 `;
 
 const AdditionalInfo = styled.span`
@@ -157,6 +164,9 @@ const AdditionalInfo = styled.span`
 padding-left: 10px;
 padding-right: 10px;
 font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+@media (max-width: 768px) {
+    font-size: 12px;
+}
 `;
 
 const SocialLinks = styled.div`
@@ -167,11 +177,11 @@ padding-top: 5px;
 const Icon = styled.img`
 width: 45px;
 height: 45px;
-margin-right: 15px;
+margin-right: 20px;
 
 @media (max-width: 768px) {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
   }
 `;
 
@@ -204,7 +214,7 @@ margin: 0px;
 margin-top: -3px;
 
 @media (max-width: 768px) {
-    font-size: 1.4em;
+    font-size: 1.2em;
 }
 `;
 
