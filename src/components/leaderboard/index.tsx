@@ -79,7 +79,7 @@ const Name = styled.div`
 
   @media (max-width: 768px) {
     // Adjust for mobile view
-    font-size: 16px;
+    font-size: 14px;
     padding: 2px;
   }
 `;
@@ -138,12 +138,18 @@ const StaticText = styled.span`
   font-size: 0.9em; // Smaller than the number
   color: #888; // Lighter color for the static text
   margin-left: 5px; // Add a little space between the number and the static text
+  @media (max-width: 768px) {
+    font-size: 0.8em;
+  }
 `;
 
 const DataValue = styled.span`
   font-weight: bold;
   font-size: 1.0em;
-  color: #FFF; // Assuming white color for the numbers
+  color: #FFF;
+  @media (max-width: 768px) {
+    font-size: 0.9em;
+  }
 `;
 
 interface LeaderboardData {
