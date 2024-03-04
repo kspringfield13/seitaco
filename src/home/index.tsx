@@ -42,31 +42,31 @@ const InfoIcon = styled.div`
   padding: 2px 2px 2px 2px;
   position: relative;
   @media (max-width: 768px) { // Adjust breakpoint as needed
-    font-size: 20px;
+    font-size: 18px;
   }
 `;
 
 const Tooltip = styled.div`
   position: absolute;
-  left: 20%; // Start by positioning the tooltip's left edge at the center of the InfoIcon
+  left: 120%; // Start by positioning the tooltip's left edge at the center of the InfoIcon
   top: 100%;
   transform: translateX(-50%); // Adjusts the tooltip back to the left by half its width, centering it relative to the InfoIcon
   visibility: hidden;
-  width: 520px; // Adjust based on the size of your tooltip
+  width: 600px; // Adjust based on the size of your tooltip
   background-color: #121212;
   color: white;
   text-align: left;
   padding: 5px;
   border-radius: 6px;
+  font-size: 14px;
   // Correct the typo from 'left-left' to 'margin-left', if needed. However, it might not be necessary with the transform approach.
-
+  @media (max-width: 768px) { // Adjust breakpoint as needed
+    font-size: 10px;
+    width: 400px;
+  }
   // Hide the tooltip by default and only show it when the InfoIcon is hovered
   ${InfoIcon}:hover & {
     visibility: visible;
-    font-size: 14px;
-    @media (max-width: 768px) {
-      font-size: 10px;
-    }
   }
 `;
 
@@ -225,7 +225,7 @@ const Home = () => {
     const resetToLeaderboard = () => {
       setSelectedCollectionSlug('');
       setShowLeaderboard(true);
-      
+
       window.scrollTo(0, 0);
   };
 
