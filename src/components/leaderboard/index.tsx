@@ -63,6 +63,11 @@ const LogoImage = styled.img`
   height: 75px; // Adjust height as needed
   border-radius: 20%;
   margin-left: 5px;
+  @media (max-width: 768px) {
+
+    width: 42px;
+    height: 42px;
+  }
 `;
 
 const Name = styled.div`
