@@ -30,7 +30,7 @@ const CollectionRow = styled.div`
   @media (max-width: 768px) {
     // Adjust for mobile view
     font-size: 14px;
-    grid-template-columns: 20px 80px auto;
+    grid-template-columns: 20px 50px auto;
     grid-template-areas:
       "rank logo name value"
       "rank logo stats stats";
