@@ -52,7 +52,7 @@ const Tooltip = styled.div`
   top: 100%;
   transform: translateX(-50%); // Adjusts the tooltip back to the left by half its width, centering it relative to the InfoIcon
   visibility: hidden;
-  width: 600px; // Adjust based on the size of your tooltip
+  width: 615px; // Adjust based on the size of your tooltip
   background-color: #121212;
   color: white;
   text-align: left;
@@ -62,7 +62,7 @@ const Tooltip = styled.div`
   // Correct the typo from 'left-left' to 'margin-left', if needed. However, it might not be necessary with the transform approach.
   @media (max-width: 768px) { // Adjust breakpoint as needed
     font-size: 10px;
-    width: 400px;
+    width: 520px;
   }
   // Hide the tooltip by default and only show it when the InfoIcon is hovered
   ${InfoIcon}:hover & {
