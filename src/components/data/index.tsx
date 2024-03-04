@@ -20,30 +20,37 @@ const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug 
     const fetchData = async () => {
       const cleanedSlug = cleanSlug(collectionSlug);
       const cacheKey = `chartData-${cleanedSlug}`;
-      const cachedData = localStorage.getItem(cacheKey);
-      const cacheBuster = new Date().getTime();
+      const cached = localStorage.getItem(cacheKey);
+      const now = new Date();
+
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        const cachedTime = new Date(timestamp);
+        const differenceInMinutes = (now.getTime() - cachedTime.getTime()) / (1000 * 60);
+
+        if (differenceInMinutes < 3) {
+          // Use cached data if it's less than 3 minutes old
+          setChartData(data);
+          return;
+        }
+        // If cached data is older than 3 minutes, fetch new data
+      }
+
+      const cacheBuster = now.getTime();
       const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-data?collectionSlug=${encodeURIComponent(cleanedSlug)}&_=${cacheBuster}`;
 
-      if (cachedData) {
-        // Use cached data
-        setChartData(JSON.parse(cachedData));
-      } else {
-        // Fetch new data
-        try {
-          console.log('Requesting URL:', serverUrl);
-          const response = await fetch(serverUrl, { cache: "no-store" });
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const data = await response.json();
-          console.log('Received data:', data);
-          // Update state with fetched data
-          setChartData(data);
-          // Cache the fetched data
-          localStorage.setItem(cacheKey, JSON.stringify(data));
-        } catch (error) {
-          console.error('Error fetching data:', error);
+      try {
+        console.log('Requesting URL:', serverUrl);
+        const response = await fetch(serverUrl, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
+        const data = await response.json();
+        console.log('Received data:', data);
+        setChartData(data);
+        localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
 

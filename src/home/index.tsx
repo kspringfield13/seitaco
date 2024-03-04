@@ -21,6 +21,12 @@ const getMonosContract = (network: string) => {
     }
 }
 
+interface SEIPriceResponse {
+    'sei-network': {
+      usd: number;
+    };
+}
+
 const DetailsAndChartContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -31,6 +37,52 @@ const DetailsAndChartContainer = styled.div`
     flex-direction: column;
   }
 `;
+
+const SEIPriceTicker: React.FC = () => {
+    const [seiPriceInfo, setSeiPriceInfo] = useState({
+      price: 'Loading...',
+      priceChangePercentage: 0,
+    });
+    const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=sei-network';
+    
+    const fetchSEIPrice = async () => {
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          if (data && data.length > 0) {
+            const { current_price, price_change_percentage_24h } = data[0];
+            setSeiPriceInfo({
+              price: `$${current_price.toFixed(2)}`,
+              priceChangePercentage: price_change_percentage_24h,
+            });
+          } else {
+            setSeiPriceInfo({ ...seiPriceInfo, price: 'Unavailable' });
+          }
+        } catch (error) {
+          console.error("Failed to fetch SEI price:", error);
+          setSeiPriceInfo({ ...seiPriceInfo, price: 'Failed to load' });
+        }
+    };
+  
+    useEffect(() => {
+      fetchSEIPrice();
+      const interval = setInterval(fetchSEIPrice, 60000);
+      return () => clearInterval(interval);
+    }, []);
+  
+    const priceChangeColor = seiPriceInfo.priceChangePercentage < 0 ? '#ff4242' : '#00c292'; // red for negative, green for positive
+    const arrowDirection = seiPriceInfo.priceChangePercentage < 0 ? '▼' : '▲'; // down arrow for negative, up arrow for positive
+
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src="https://storage.googleapis.com/cryptomonos/monos/sei_logo.png" alt="SEI Token" style={{ marginRight: '10px', width: '28px', height: '28px', marginBottom: '2px' }} />
+        <span>{seiPriceInfo.price}</span>
+        <span style={{ marginLeft: '5px', color: priceChangeColor }}>
+          {arrowDirection} {Math.abs(seiPriceInfo.priceChangePercentage).toFixed(2)}%
+        </span>
+      </div>
+    );
+};
 
 const Home = () => {
     const { openWalletConnect, wallet, disconnectWallet } = useWalletConnect();
@@ -125,6 +177,7 @@ const Home = () => {
             <C.Container>
                 <C.Header>
                     <C.Logo src="/images/logo.png" onClick={resetToLeaderboard} style={{cursor: 'pointer'}} />
+                    <SEIPriceTicker />
                     {wallet === null ? (
                         <C.WalletConnect onClick={openWalletConnect}>Connect Wallet</C.WalletConnect>
                     ) : (
@@ -179,7 +232,7 @@ const Home = () => {
                 )}
                 {!wallet && showWalletStatus && (
                     <WalletStatusDisplay
-                      message="Buy a CryptoMonos for Access "
+                      message="Buy a CryptoMono for Access "
                       imageUrl="https://storage.googleapis.com/cryptomonos/monos/logo_him_bg.png"
                       buttonUrl="https://beta.mrkt.exchange/collection/sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl"
                     />
