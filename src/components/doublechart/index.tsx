@@ -73,7 +73,7 @@ const DoubleChart: React.FC<DoubleChartProps> = ({
               label: 'Avg Sales Price (SEI)',
               data: salesDayData,
               borderColor: gradient,
-              borderWidth: 2,
+              borderWidth: 4,
               pointBackgroundColor: 'rgba(21, 231, 182, 1)',
               pointBorderColor: '#fff',
               pointHoverBackgroundColor: '#fff',

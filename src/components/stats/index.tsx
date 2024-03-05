@@ -13,7 +13,7 @@ const StatsContainerDiv = styled.div`
 
 const StatPillDiv = styled.div`
   flex-basis: 50%;
-  background-color: #121212;
+  background-image: linear-gradient(to top, #000000, #191919);
   color: white;
   padding: 0px 0px 0px 0px;
   margin: 5px 20px 5px 20px;

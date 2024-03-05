@@ -20,7 +20,7 @@ const CollectionRow = styled.div`
   padding-left: 10px;
   margin-bottom: 10px;
   border-radius: 10px;
-  background-color: #191919;
+  background-image: linear-gradient(to top, #000000, #191919);
   cursor: pointer;
 
   &:hover {
