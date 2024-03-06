@@ -247,15 +247,16 @@ const Home = () => {
                         ⓘ {/* You can replace this with an SVG or an image for the info icon */}
                         <Tooltip>
                           <p><u>Welcome to SeiTa.co</u></p>
-                          <p>SEI PFP Collections Ranked by Floor Price</p>
-                          <p>- Click on a collection to view more data</p>
-                          <p>- Click the PFP on collection page to buy from MRKT</p>
+                          <p>SEI PFP Power Rankings</p>
+                          <p>- The Top PFPs Ranked by Floor</p>
+                          <p>- Select a collection to view more data</p>
+                          <p>- Click Logo to return to Leaderboard</p>
                           <p>- Data refreshed every 5 minutes</p>
-                          <p>*Sales = 24HR Sales</p>
-                          <p>*Volume = 24HR Volume</p>
-                          <p>*Listed = Current Pallet Listings</p>
-                          <p>*Floor = Current Pallet Floor</p>
-                          <p>*% Change = 24HR Floor Change</p>
+                          <p>*Sales = 24HR Sales (Pallet)</p>
+                          <p>*Volume = 24HR Volume (Pallet)</p>
+                          <p>*Listed = Current Listings (Pallet)</p>
+                          <p>*Floor = Current Floor (Pallet)</p>
+                          <p>*% Change = 24HR Floor Price Change</p>
                         </Tooltip>
                       </InfoIcon>
                     )}

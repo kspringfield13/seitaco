@@ -1,5 +1,6 @@
 // Leaderboard.tsx
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const LeaderboardContainer = styled.div`
@@ -72,15 +73,15 @@ const LogoImage = styled.img`
 
 const Name = styled.div`
   grid-area: name;
-  font-size: 20px; // Adjust font size as needed
+  font-size: 24px; // Adjust font size as needed
   font-weight: bold;
   color: #FFF;
-  padding-left: 3px;
+  padding-left: 5px;
 
   @media (max-width: 768px) {
     // Adjust for mobile view
     font-size: 11px;
-    padding: 3px;
+    padding: 5px;
   }
 `;
 
@@ -100,7 +101,7 @@ const Stats = styled.div`
   justify-content: space-between; // Align stats to the start of the area
   gap: 10px; // Space between stats elements
   align-items: center;
-  font-size: 18px; // Adjust font size as needed
+  font-size: 20px; // Adjust font size as needed
   color: #FFF;
   @media (max-width: 768px) {
     // Adjust for mobile view
@@ -152,6 +153,52 @@ const DataValue = styled.span`
   }
 `;
 
+const changeText = styled.div`
+  font-size: 16px;
+  @media (max-width: 768px) {
+    font-size: 10px;
+  }
+`;
+
+const NFTContainer = styled.div`
+  display: grid;
+  gap: 10px;
+  justify-content: center;
+  grid-template-columns: repeat(10, 1fr);
+  padding-left: 250px;
+
+  @media (max-width: 1500px) {
+    display: none;
+  }
+
+  /* Optionally hide on smaller screens */
+  @media (max-width: 767px) {
+    display: none;
+  }
+`;
+
+const NFTDisplay = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-top: -35px;
+  margin-bottom: -75px;
+`;
+
+const NFTImage = styled.img`
+  width: 70px;
+  height: 70px;
+  border-radius: 50%; /* Circle overlay */
+  object-fit: cover;
+`;
+
+const NFTLabel = styled.div`
+  color: #FFF;
+  margin-top: -5px;
+  font-size: 12px; /* Adjust font size as needed */
+`;
+
 interface LeaderboardData {
   slug: string;
   rank: number;
@@ -163,11 +210,30 @@ interface LeaderboardData {
   floorPrice: number; // assuming this remains a string
   previousFloorPrice: number; // changed to number
   last_updated: string;
+  listedNfts?: NFT[];
 }
 
 interface LeaderboardProps {
   onSelectCollection: (slug: string) => void;
 }
+
+interface LeaderboardItem {
+  slug: string;
+  name: string;
+  listedNfts?: NFT[]; // An array of NFT objects, optional
+  // Include other relevant properties as necessary
+}
+
+interface NFT {
+  id: string;
+  price: number;
+  slug: string;
+  image_url?: string;
+}
+
+const cleanSlug = (slug: string) => {
+  return slug.toLowerCase().replace(/[^a-z_]/g, '');
+};
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
@@ -180,33 +246,55 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
-      const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-leaderboard`;
+      const cleanedSlug = cleanSlug("cryptomonos");
 
-      // Check if cache is valid (less than 2 minutes old)
+      const leaderboardUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-leaderboard`;
+      const listedNftsUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-listed?collectionSlug=${encodeURIComponent(cleanedSlug)}`; // New URL for fetching listed NFTs
+      const cacheKey = 'leaderboardDataCache'; // Key for localStorage
+      const cached = localStorage.getItem(cacheKey);
       const now = new Date().getTime();
-      if (cache.data && now - cache.timestamp < 120000) { // 120000 milliseconds = 2 minutes
-        setLeaderboardData(cache.data);
-        return; // Use cached data
+  
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+  
+        // Use cached data if it's less than 2 minutes old
+        if (data && now - timestamp < 120000) {
+          setLeaderboardData(data);
+          return;
+        }
       }
-
+  
       try {
-        const response = await fetch(serverUrl);
-        if (!response.ok) {
+        // Fetch both datasets concurrently
+        const responses = await Promise.all([
+          fetch(leaderboardUrl),
+          fetch(listedNftsUrl),
+        ]);
+  
+        if (!responses[0].ok || !responses[1].ok) {
           throw new Error('Network response was not ok');
         }
-        const data: LeaderboardData[] = await response.json();
-        setLeaderboardData(data);
-
-        // Update cache
-        cache = {
-          data,
-          timestamp: new Date().getTime(), // Update timestamp with current time
-        };
+  
+        const leaderboardData = await responses[0].json();
+        const listedNftsData = await responses[1].json();
+  
+        const mergedData = leaderboardData.map((leaderboardItem: LeaderboardItem) => {
+          const matchingListedNfts: NFT[] = listedNftsData.filter((nft: NFT) => nft.slug === leaderboardItem.slug);
+          return {
+            ...leaderboardItem,
+            listedNfts: matchingListedNfts, // Adds the listed NFTs to the corresponding leaderboard item
+          };
+        });
+  
+        setLeaderboardData(mergedData);
+  
+        // Update cache in localStorage
+        localStorage.setItem(cacheKey, JSON.stringify({ data: mergedData, timestamp: now }));
       } catch (error) {
-        console.error('Error fetching leaderboard data:', error);
+        console.error('Error fetching data:', error);
       }
     };
-
+  
     fetchLeaderboardData();
   }, []);
 
@@ -234,10 +322,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
     const percentageChange = ((floorPrice - previousFloorPrice) / previousFloorPrice) * 100;
     const changeDirection = percentageChange >= 0 ? '▲' : '▼';
     const changeColor = percentageChange >= 0 ? 'green' : 'red';
-  
     return (
       <Stat>
-        <span style={{ color: changeColor }}>{changeDirection} {Math.abs(percentageChange).toFixed(2)}%</span>
+        <span style={{ color: changeColor, fontSize: 12 }}>{changeDirection} {Math.abs(percentageChange).toFixed(1)}%</span>
         <DataValue> {floorPrice} SEI</DataValue>
         <StaticText>Floor</StaticText>
       </Stat>
@@ -250,7 +337,19 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
       <CollectionRow key={index} onClick={() => onSelectCollection(data.slug)}>
         <Rank>{data.rank}</Rank>
         <LogoImage src={data.logoSrc} alt={`${data.name} logo`} />
-        <Name>{data.name}</Name>
+        <Name>
+          {data.name}
+          <NFTContainer>
+          {data.listedNfts && data.listedNfts.map((nft, nftIndex) => (
+            <NFTDisplay key={nftIndex} onClick={(e) => e.stopPropagation()}>
+              <a href={`https://pallet.exchange/collection/cryptomonos/${nft.id}`} target="_blank" rel="noopener noreferrer">
+                <NFTImage src={nft.image_url} alt={`NFT ${nft.id}`} />
+              </a>
+              <NFTLabel>{nft.price} SEI</NFTLabel>
+            </NFTDisplay>
+          ))}
+          </NFTContainer>
+        </Name>
         <StatsContainer>
         <Stat>
           <DataValue>{data.daySales}</DataValue>

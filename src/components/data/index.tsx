@@ -21,39 +21,40 @@ const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug 
       const cleanedSlug = cleanSlug(collectionSlug);
       const cacheKey = `chartData-${cleanedSlug}`;
       const cached = localStorage.getItem(cacheKey);
-      const now = new Date();
-
+      const now = new Date().getTime(); // Use getTime() for consistency
+  
       if (cached) {
         const { data, timestamp } = JSON.parse(cached);
-        const cachedTime = new Date(timestamp);
-        const differenceInMinutes = (now.getTime() - cachedTime.getTime()) / (1000 * 60);
-
-        if (differenceInMinutes < 2) {
-          // Use cached data if it's less than 3 minutes old
+  
+        // Check if the cached data is less than 2 minutes old
+        if (now - timestamp < 120000) { // 120000 milliseconds = 2 minutes
           setChartData(data);
-          return;
+          return; // Use cached data and return early
         }
-        // If cached data is older than 3 minutes, fetch new data
+        // If the cached data is older than 2 minutes, proceed to fetch new data
       }
-
-      const cacheBuster = now.getTime();
+  
+      // Append a cache buster to the URL to prevent caching at the HTTP level
+      const cacheBuster = now;
       const serverUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-data?collectionSlug=${encodeURIComponent(cleanedSlug)}&_=${cacheBuster}`;
-
+  
       try {
-        console.log('Requesting URL:', serverUrl);
+        console.log('Requesting URL:', serverUrl); // Consider removing console logs for production
         const response = await fetch(serverUrl, { cache: "no-store" });
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log('Received data:', data);
+        console.log('Received data:', data); // Consider removing console logs for production
         setChartData(data);
+  
+        // Update the cache with the new data and current timestamp
         localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
+  
     fetchData();
   }, [collectionSlug]);
 
