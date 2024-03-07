@@ -27,7 +27,8 @@ export const ChartWrapper = styled.div`
   max-height: 2000px;
   height: 400px;
   max-width: calc(50% - 10px); /* Sets a maximum width for each chart */
-  padding: 10px;
+  padding: 20px;
+  padding-top: 1px !important;
   margin-top: 15px;
   background-color: #121212;
   border-radius: 8px; /* If your charts have rounded corners */
@@ -68,7 +69,8 @@ export const ChartWrapperFull = styled.div`
   max-height: 2000px;
   max-width: 100%;
   margin: auto;
-  padding: 10px;
+  padding: 20px;
+  padding-top: 1px !important;
   height: 400px;
   flex: 1;
   background-color: #121212;

@@ -23,6 +23,7 @@ const ChartComponent: React.FC<ChartProps> = ({
 }) => {
   const [chartInstance, setChartInstance] = useState<Chart | null>(null);
   const [dataMode, setDataMode] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all');
+  const [activeButton, setActiveButton] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
 
@@ -40,10 +41,7 @@ const ChartComponent: React.FC<ChartProps> = ({
     const filteredData = filterDataByMode(data);
     // Convert timestamps to formatted strings and prepend a label for the constant value
     const chartLabels = ['Mint', ...filteredData.map(item => moment(item.timestamp).format('MMM D, ha'))];
-    const dataValues = [parseFloat(mintPrice), ...filteredData.map(item => item.floor)];
-    //const chartLabels = ['Mint', ...data.map(item => moment(item.timestamp).format('MMM D, ha'))];
-    // Assuming item.floor correctly represents the data point, prepend the constant value
-    //const dataValues = [mintPriceNumber, ...data.map(item => item.floor)];
+    const dataValues = [mintPriceNumber, ...filteredData.map(item => item.floor)];
 
     const label = "Floor Price"; // Static label for Floor Price
   
@@ -66,7 +64,7 @@ const ChartComponent: React.FC<ChartProps> = ({
         label: label,
         data: mainDataValues,
         borderColor: gradient,
-        borderWidth: 4,
+        borderWidth: 3,
         pointBackgroundColor: 'rgba(21, 231, 182, 1)',
         pointHoverBorderColor: 'rgba(21, 231, 182, 1)',
         fill: false,
@@ -173,17 +171,18 @@ const ChartComponent: React.FC<ChartProps> = ({
 
   const handleDataModeChange = (mode: 'all' | 'daily' | 'weekly' | 'monthly') => {
     setDataMode(mode);
+    setActiveButton(mode);
   };
 
 
   return (
     <div className="chart-container" style={{ display: 'flex', position: 'relative' }}>
       <canvas ref={canvasRef} id={chartId} width="2216" height="760" style={{display: 'block', boxSizing: 'border-box', height: '100%', width: '1108px'}}></canvas>
-      <div className="button-container" style={{ position: 'absolute', top: '2px', right: '2px', marginTop: '-7px', marginRight: '-7px'}}>
-        <button onClick={() => handleDataModeChange('daily')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#fff', cursor: 'pointer' }}>D</button>
-        <button onClick={() => handleDataModeChange('weekly')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#fff', cursor: 'pointer' }}>WK</button>
-        <button onClick={() => handleDataModeChange('monthly')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#fff', cursor: 'pointer' }}>M</button>
-        <button onClick={() => handleDataModeChange('all')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#fff', cursor: 'pointer' }}>ALL</button>
+      <div className="button-container" style={{ position: 'absolute', top: '5px', right: '-14px', marginTop: '1px', marginRight: '1px'}}>
+        <button onClick={() => handleDataModeChange('daily')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: activeButton === 'daily' ? 'none' : 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#181818', cursor: 'pointer' }}>D</button>
+        <button onClick={() => handleDataModeChange('weekly')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: activeButton === 'weekly' ? 'none' : 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#181818', cursor: 'pointer' }}>WK</button>
+        <button onClick={() => handleDataModeChange('monthly')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: activeButton === 'monthly' ? 'none' : 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#181818', cursor: 'pointer' }}>M</button>
+        <button onClick={() => handleDataModeChange('all')} style={{ marginLeft: '8px', padding: '7px 15px 7px 15px', border: 'none', borderRadius: '5px', backgroundImage: activeButton === 'all' ? 'none' : 'linear-gradient(to top, rgba(222, 59, 64, 1), rgba(143, 47, 91, 1))', color: '#181818', cursor: 'pointer' }}>ALL</button>
       </div>
     </div>
   );
