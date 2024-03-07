@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import styled, { createGlobalStyle } from 'styled-components';
 import * as C from "./style"
 import { useWalletConnect } from "hooks/walletConnect"
+import useFetchLeaderboardData from "hooks/fetch"
 import config from "config.json"
 import Wallet, { DropdownItem } from "components/wallet"
 import { getSigningCosmWasmClient } from "@sei-js/core"
@@ -10,6 +11,8 @@ import Leaderboard from 'components/leaderboard'
 import { CollectionDetailsType, collectionMapping } from 'utils/helpers'
 import CollectionDetails from 'components/details';
 import WalletStatusDisplay from 'components/display';
+import { BeatLoader } from 'react-spinners';
+import { initGA, logPageView } from 'utils/ga';
 
 const GlobalStyle = createGlobalStyle`
   html, body {
@@ -87,6 +90,13 @@ const DetailsAndChartContainer = styled.div`
   }
 `;
 
+const LoaderContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; // Adjust the height as needed
+`;
+
 const SEIPriceTicker: React.FC = () => {
     const [seiPriceInfo, setSeiPriceInfo] = useState({
       price: 'Loading...',
@@ -130,7 +140,7 @@ const SEIPriceTicker: React.FC = () => {
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
-        <img src="https://storage.googleapis.com/cryptomonos/monos/sei_logo.png" alt="SEI Token" style={{ marginRight: '10px', width: '30px', height: '30px' }} />
+        <img src="https://storage.googleapis.com/cryptomonos/monos/sei_logo.png" alt="SEI Token" style={{ marginRight: '10px', width: '28px', height: '28px' }} />
         <div style={{ display: 'flex', flexDirection: 'column', fontSize: '12px' , textAlign: 'left' }}>
           <div>{seiPriceInfo.price}</div>
           <div style={{ color: priceChangeColor }}>
@@ -142,6 +152,8 @@ const SEIPriceTicker: React.FC = () => {
 };
 
 const Home = () => {
+    const { leaderboardData, isLoading, error } = useFetchLeaderboardData();
+
     const { openWalletConnect, wallet, disconnectWallet } = useWalletConnect();
     const [showAccessGranted, setShowAccessGranted] = useState(false);
     const [showAccessDenied, setShowAccessDenied] = useState(false);
@@ -153,6 +165,14 @@ const Home = () => {
     const [collectionInfo, setCollectionInfo] = useState<CollectionDetailsType | null>(null);
     const [showWalletStatus, setShowWalletStatus] = useState(true);
 
+    useEffect(() => {
+      // Only initialize GA once
+      if (!window.GA_INITIALIZED) {
+        initGA('G-R2X925C5NX'); // Replace with your actual tracking ID
+        window.GA_INITIALIZED = true;
+      }
+      logPageView();
+    }, []);
 
     useEffect(() => {
         const checkTokenOwnership = async () => {
@@ -176,7 +196,7 @@ const Home = () => {
                     setShowAccessGranted(true); // Show the Access Granted message
                     setTimeout(() => {
                         setShowAccessGranted(false); // Hide the message after 10 seconds
-                    }, 5000);
+                    }, 10000);
                 }
                 if (!isTokenOwner) {
                     setShowAccessDenied(true); // Show the Access Granted message
@@ -249,6 +269,7 @@ const Home = () => {
                           <p><u>Welcome to SeiTa.co</u></p>
                           <p>SEI PFP Power Rankings</p>
                           <p>- The Top PFPs Ranked by Floor</p>
+                          <p>- PFPs only. Minimum 999 supply</p>
                           <p>- Select a collection to view more data</p>
                           <p>- Click Logo to return to Leaderboard</p>
                           <p>- Data refreshed every 5 minutes</p>
@@ -287,14 +308,22 @@ const Home = () => {
                     <C.AccessDenied>Access Denied</C.AccessDenied>
                     </C.Overlay>
                 )}
-                {/* Conditional rendering for Leaderboard and ChartDataContainer */}
-                {wallet && isTokenHolder && showLeaderboard && !selectedCollectionSlug && (
-                    <Leaderboard onSelectCollection={(slug) => {
-                        const cleanedSlug = cleanSlug(slug);
-                        setSelectedCollectionSlug(cleanedSlug);
-                        setShowLeaderboard(false); // Hide leaderboard once a collection is selected
-                    }} />
-                )}
+                {isLoading ? (
+                  <LoaderContainer>
+                    <BeatLoader color="#123abc" size={15} />
+                  </LoaderContainer>
+                ) : wallet && isTokenHolder && showLeaderboard && !selectedCollectionSlug ? (
+                  <Leaderboard 
+                    data={leaderboardData} 
+                    onSelectCollection={(slug) => {
+                      const cleanedSlug = cleanSlug(slug);
+                      setSelectedCollectionSlug(cleanedSlug);
+                      setShowLeaderboard(false); // This hides the leaderboard once a collection is selected
+                    }}
+                    // Optionally pass isLoading if you want to handle it inside Leaderboard
+                    // isLoading={isLoading}
+                  />
+                ) : null}
                 {wallet && isTokenHolder && selectedCollectionSlug && collectionInfo && (
                     <>
                         <CollectionDetails
@@ -314,7 +343,7 @@ const Home = () => {
                 )}
                 {!wallet && showWalletStatus && (
                     <WalletStatusDisplay
-                      message="Buy a CryptoMono for Access "
+                      message="HODL a CryptoMono for Access"
                       imageUrl="https://storage.googleapis.com/cryptomonos/monos/logo_him_bg.png"
                       buttonUrl="https://beta.mrkt.exchange/collection/sei1u2nd0rrqhmfpj64rqle8cnlh63nccym5tq4auqvn6ujhyh5ztunsdv8kxl"
                     />

@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { CollectionDetailsType, collectionMapping } from '../../utils/helpers';
 import FloorPriceChart from '../floor'; // Assume this is your modified FloorPrice component
 import VolumeChart from '../volume';
 import StatsContainer from '../stats';
 import DoubleChart from '../doublechart'; // This will be your Volume chart component
 import * as C from "./style"
 
+interface CollectionDetailsProps {
+  slug: string;
+}
+
 interface ChartDataContainerProps {
   collectionSlug: string; // Define the prop type
 }
+
 
 const cleanSlug = (slug: string) => {
   return slug.toLowerCase().replace(/[^a-z_]/g, '');
 };
 
-const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug }) => {
+const useChartData = (collectionSlug: string) => {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
@@ -58,6 +64,28 @@ const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug 
     fetchData();
   }, [collectionSlug]);
 
+  return chartData;
+};
+
+// ChartDataContainer component
+const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug }) => {
+  const chartData = useChartData(collectionSlug);
+  const collectionDetails: CollectionDetailsType | undefined = collectionMapping[collectionSlug];
+
+  if (!collectionDetails || !chartData.length) {
+    return <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh', // This assumes the parent container allows for 100% height usage
+      width: '100vw',
+      fontSize: '20px', // Optional: Adjust the font size as needed
+      color: '#555' // Optional: Adjust the color as needed
+  }}>
+      Loading...
+  </div>; // You might want to handle loading state
+  }
+
   // Assuming the latest row is the last item in the array
   const latestRow = chartData[chartData.length - 1];
 
@@ -66,7 +94,7 @@ const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug 
       <StatsContainer data={latestRow}/>
       <C.ChartsContainer>
         <C.ChartWrapper>
-          <FloorPriceChart data={chartData} chartId="floorPriceChart" chartTitle="Floor Price" label="Floor Price" />
+          <FloorPriceChart data={chartData} mintPrice={collectionDetails.mintPrice} chartId="floorPriceChart" chartTitle="Floor Price" label="Floor Price" />
         </C.ChartWrapper>
         <C.ChartWrapper>
           <VolumeChart data={chartData} chartId="volumeChart" chartTitle="Volume" label="Volume" />
@@ -79,6 +107,6 @@ const ChartDataContainer: React.FC<ChartDataContainerProps> = ({ collectionSlug 
       </C.ChartsContainerFull>
     </>
   );
-};
+}
 
 export default ChartDataContainer;

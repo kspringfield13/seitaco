@@ -11,6 +11,7 @@ interface WalletStatusDisplayProps {
 const WalletStatusDisplay: React.FC<WalletStatusDisplayProps> = ({ message, imageUrl, buttonUrl }) => {
     return (
       <Container>
+        <Message>Welcome to SeiTa.co</Message>
         <Image src={imageUrl} alt="Status" />
         <Message>{message}</Message>
         <Button href={buttonUrl} target="_blank" rel="noopener noreferrer">
@@ -29,7 +30,7 @@ const Container = styled.div`
 `;
 
 const Image = styled.img`
-  max-width: 800px; // Set a max-width for the image
+  max-width: 700px; // Set a max-width for the image
   margin-bottom: 20px;
   border-radius: 20px;
 
@@ -48,7 +49,7 @@ const Message = styled.p`
   margin-bottom: 20px;
   margin-top: 5px;
   @media (max-width: 768px) {
-    font-size: 1.6em;
+    font-size: 1.3em;
   }
 `;
 

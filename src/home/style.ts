@@ -126,6 +126,8 @@ export const Bg = styled.div`
 `
 
 export const Container = styled.div`
+    padding-top: 92px;
+    padding-bottom: 20px;
     max-width: 100%;
     margin: 0 auto;
     padding-right: 10px;
@@ -136,17 +138,26 @@ export const Container = styled.div`
     z-index:1;
     @media (max-width: 768px) {
         padding: 0 10px;
+        padding-top: 84px;
     }
 `
 
 export const Header = styled.div`
-    padding-top:35px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    z-index: 1000;
+    padding: 10px 10px;
+    background: #000;
     display:flex;
     justify-content:space-between;
     align-items:center;
 
     @media (max-width: 768px) {
-        padding-top:35px;
+        height: 55px;
+        padding-top:5px;
         padding-bottom: 5px;
         &>*:nth-child(2){
             margin:8px 0;
@@ -158,14 +169,14 @@ export const Logo = styled.img`
     width: 150px;
     margin-bottom: -10px;
     margin-top: -15px;
-    padding-left: 4px;
+    padding-left: 0px;
 
     @media (max-width: 768px) {
         width: 100px;
         margin-bottom: 0px;
         margin-top: -15px;
         padding-left: 0px;
-        padding-top: 7px;
+        padding-top: 12px;
     }
 `
 

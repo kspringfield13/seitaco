@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { BeatLoader } from 'react-spinners';
 
 const LeaderboardContainer = styled.div`
   display: flex;
@@ -80,8 +81,9 @@ const Name = styled.div`
 
   @media (max-width: 768px) {
     // Adjust for mobile view
-    font-size: 11px;
+    font-size: 12px;
     padding: 5px;
+    margin-right: -13px;
   }
 `;
 
@@ -162,12 +164,14 @@ const changeText = styled.div`
 
 const NFTContainer = styled.div`
   display: grid;
-  gap: 10px;
+  gap: 25px;
   justify-content: center;
   grid-template-columns: repeat(10, 1fr);
   padding-left: 250px;
+  margin-right: -100px;
 
-  @media (max-width: 1500px) {
+  /* Optionally hide on smaller screens */
+  @media (max-width: 1150px) {
     display: none;
   }
 
@@ -199,6 +203,13 @@ const NFTLabel = styled.div`
   font-size: 12px; /* Adjust font size as needed */
 `;
 
+const LoaderContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; // Adjust the height as needed
+`;
+
 interface LeaderboardData {
   slug: string;
   rank: number;
@@ -215,6 +226,8 @@ interface LeaderboardData {
 
 interface LeaderboardProps {
   onSelectCollection: (slug: string) => void;
+  data: LeaderboardData[]; // Received from the Home component
+  isLoading?: boolean; // Optional: pass isLoading from Home if you want to handle loading state here
 }
 
 interface LeaderboardItem {
@@ -231,145 +244,148 @@ interface NFT {
   image_url?: string;
 }
 
-const cleanSlug = (slug: string) => {
-  return slug.toLowerCase().replace(/[^a-z_]/g, '');
+interface NftsBySlug {
+  [key: string]: NFT[];
+}
+
+interface ListedNftItem {
+  slug: string;
+  listedNfts: NFT[]; // Assuming NFT is already defined elsewhere as per your existing code
+}
+
+const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection, data, isLoading }) => {
+
+type SlugExceptions = {
+  [key: string]: string;
 };
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ onSelectCollection }) => {
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
+// Define slug exceptions with the specific type
+const slugExceptions: SlugExceptions = {
+  "therabbitproject": "the-rabbit-project",
+  "yakavoyager": "yaka-voyager",
+  "thecolony": "the-colony",
+  "theseiwhales": "the-sei-whales",
+  "daringdragonz": "daring-dragonz",
+  "fudfoxes": "fud-foxes",
+  "bullsonsei": "bulls-on-sei",
+  "seimesecats": "seimese-cats",
+  "seiyanbycult": "seiyan-by-cult",
+  "astroguys": "astro-guys",
+  "seiducks": "sei-ducks",
+  "seininja": "sei-ninja",
+  "thecouncil": "the-council",
+  "remosworld": "remos-world",
+  "mempoolducks": "mempool-ducks",
+  "seifuckers": "sei-fuckers",
+  "seistoics": "sei-stoics",
+  "grapesonsei": "grapes-on-sei",
+  "theunfrgtn": "the-unfrgtn",
+  "oblin": "6oblin",
+};
 
-  // Cache structure
-  let cache = {
-    data: null as LeaderboardData[] | null,
-    timestamp: 0, // Epoch time in milliseconds
-  };
+// Assuming cleanSlug function is defined somewhere
+const cleanSlug = (slug: string): string => {
+  // Implementation of cleanSlug that replaces underscores with dashes or performs other cleaning operations
+  return slug.replace(/_/g, '-').toLowerCase();
+};
 
-  useEffect(() => {
-    const fetchLeaderboardData = async () => {
-      const cleanedSlug = cleanSlug("cryptomonos");
+// Function to adjust the slug with explicit parameter and return types
+const adjustSlug = (slug: string): string => {
+  // Check if the slug is in the exceptions and return the exception if found
+  if (slugExceptions[slug]) {
+    return slugExceptions[slug];
+  }
+  // If not found in exceptions, return the cleaned slug
+  return cleanSlug(slug);
+};
 
-      const leaderboardUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-leaderboard`;
-      const listedNftsUrl = `https://seitaco-server-1d85377b001f.herokuapp.com/get-listed?collectionSlug=${encodeURIComponent(cleanedSlug)}`; // New URL for fetching listed NFTs
-      const cacheKey = 'leaderboardDataCache'; // Key for localStorage
-      const cached = localStorage.getItem(cacheKey);
-      const now = new Date().getTime();
-  
-      if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-  
-        // Use cached data if it's less than 2 minutes old
-        if (data && now - timestamp < 120000) {
-          setLeaderboardData(data);
-          return;
-        }
-      }
-  
-      try {
-        // Fetch both datasets concurrently
-        const responses = await Promise.all([
-          fetch(leaderboardUrl),
-          fetch(listedNftsUrl),
-        ]);
-  
-        if (!responses[0].ok || !responses[1].ok) {
-          throw new Error('Network response was not ok');
-        }
-  
-        const leaderboardData = await responses[0].json();
-        const listedNftsData = await responses[1].json();
-  
-        const mergedData = leaderboardData.map((leaderboardItem: LeaderboardItem) => {
-          const matchingListedNfts: NFT[] = listedNftsData.filter((nft: NFT) => nft.slug === leaderboardItem.slug);
-          return {
-            ...leaderboardItem,
-            listedNfts: matchingListedNfts, // Adds the listed NFTs to the corresponding leaderboard item
-          };
-        });
-  
-        setLeaderboardData(mergedData);
-  
-        // Update cache in localStorage
-        localStorage.setItem(cacheKey, JSON.stringify({ data: mergedData, timestamp: now }));
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-  
-    fetchLeaderboardData();
-  }, []);
+// Cache structure
+let cache = {
+  data: null as LeaderboardData[] | null,
+  timestamp: 0, // Epoch time in milliseconds
+};
 
-  const renderFloorPriceWithChange = (floorPrice: number, previousFloorPrice: number) => {
-    // If previousFloorPrice is 0.0, do not render the component
-    if (previousFloorPrice === 0.0) {
-      return (
-        <Stat>
-          <DataValue>{floorPrice} SEI</DataValue>
-          <StaticText>Floor</StaticText>
-        </Stat>
-      );
-    }
-  
-    // Check if there's no change in floor price
-    if (floorPrice === previousFloorPrice) {
-      return (
-        <Stat>
-          <DataValue>{floorPrice} SEI</DataValue>
-          <StaticText>Floor</StaticText>
-        </Stat>
-      );
-    }
-  
-    const percentageChange = ((floorPrice - previousFloorPrice) / previousFloorPrice) * 100;
-    const changeDirection = percentageChange >= 0 ? '▲' : '▼';
-    const changeColor = percentageChange >= 0 ? 'green' : 'red';
+const renderFloorPriceWithChange = (floorPrice: number, previousFloorPrice: number) => {
+  // If previousFloorPrice is 0.0, do not render the component
+  if (previousFloorPrice === 0.0) {
     return (
       <Stat>
-        <span style={{ color: changeColor, fontSize: 12 }}>{changeDirection} {Math.abs(percentageChange).toFixed(1)}%</span>
-        <DataValue> {floorPrice} SEI</DataValue>
+        <DataValue>{floorPrice} SEI</DataValue>
         <StaticText>Floor</StaticText>
       </Stat>
     );
-  };
+  }
+
+  // Check if there's no change in floor price
+  if (floorPrice === previousFloorPrice) {
+    return (
+      <Stat>
+        <DataValue>{floorPrice} SEI</DataValue>
+        <StaticText>Floor</StaticText>
+      </Stat>
+    );
+  }
+
+  const percentageChange = ((floorPrice - previousFloorPrice) / previousFloorPrice) * 100;
+  const changeDirection = percentageChange >= 0 ? '▲' : '▼';
+  const changeColor = percentageChange >= 0 ? 'green' : 'red';
+  return (
+    <Stat>
+      <span style={{ color: changeColor, fontSize: 12 }}>{changeDirection} {Math.abs(percentageChange).toFixed(1)}%</span>
+      <DataValue> {floorPrice} SEI</DataValue>
+      <StaticText>Floor</StaticText>
+    </Stat>
+  );
+};
 
   return (
-    <LeaderboardContainer>
-    {leaderboardData.map((data, index) => (
-      <CollectionRow key={index} onClick={() => onSelectCollection(data.slug)}>
-        <Rank>{data.rank}</Rank>
-        <LogoImage src={data.logoSrc} alt={`${data.name} logo`} />
-        <Name>
-          {data.name}
-          <NFTContainer>
-          {data.listedNfts && data.listedNfts.map((nft, nftIndex) => (
-            <NFTDisplay key={nftIndex} onClick={(e) => e.stopPropagation()}>
-              <a href={`https://pallet.exchange/collection/cryptomonos/${nft.id}`} target="_blank" rel="noopener noreferrer">
-                <NFTImage src={nft.image_url} alt={`NFT ${nft.id}`} />
-              </a>
-              <NFTLabel>{nft.price} SEI</NFTLabel>
-            </NFTDisplay>
+    <>
+      {isLoading ? (
+        // Show loading indicator while data is loading
+        <LoaderContainer>
+          <BeatLoader color="#123abc" loading={isLoading} size={15} />
+        </LoaderContainer>
+      ) : (
+          <LeaderboardContainer>
+          {data.map((data, index) => (
+            <CollectionRow key={index} onClick={() => onSelectCollection(data.slug)}>
+              <Rank>{data.rank}</Rank>
+              <LogoImage src={data.logoSrc} alt={`${data.name} logo`} />
+              <Name>
+                {data.name}
+                <NFTContainer>
+                {data.listedNfts && data.listedNfts.map((nft, nftIndex) => (
+                  <NFTDisplay key={nftIndex} onClick={(e) => e.stopPropagation()}>
+                    <a href={`https://pallet.exchange/collection/${adjustSlug(data.slug)}/${nft.id}`} target="_blank" rel="noopener noreferrer">
+                      <NFTImage src={nft.image_url} alt={`NFT ${nft.id}`} />
+                    </a>
+                    <NFTLabel>{Number(nft.price).toFixed(0)} SEI</NFTLabel>
+                  </NFTDisplay>
+                ))}
+                </NFTContainer>
+              </Name>
+              <StatsContainer>
+              <Stat>
+                <DataValue>{data.daySales}</DataValue>
+                <StaticText>Sales</StaticText>
+              </Stat>
+              <Stat>
+                <DataValue>{data.dayVolume}</DataValue>
+                <StaticText>Volume</StaticText>
+              </Stat>
+              </StatsContainer>
+              <Stats>
+              {renderFloorPriceWithChange(data.floorPrice, data.previousFloorPrice)}
+                <Stat>
+                  <DataValue>{data.listed}</DataValue>
+                  <StaticText>Listed</StaticText>
+                </Stat>
+              </Stats>
+            </CollectionRow>
           ))}
-          </NFTContainer>
-        </Name>
-        <StatsContainer>
-        <Stat>
-          <DataValue>{data.daySales}</DataValue>
-          <StaticText>Sales</StaticText>
-        </Stat>
-        <Stat>
-          <DataValue>{data.dayVolume}</DataValue>
-          <StaticText>Volume</StaticText>
-        </Stat>
-        </StatsContainer>
-        <Stats>
-        {renderFloorPriceWithChange(data.floorPrice, data.previousFloorPrice)}
-          <Stat>
-            <DataValue>{data.listed}</DataValue>
-            <StaticText>Listed</StaticText>
-          </Stat>
-        </Stats>
-      </CollectionRow>
-    ))}
-  </LeaderboardContainer>
+        </LeaderboardContainer>
+      )}
+    </>
   );
 };
 
