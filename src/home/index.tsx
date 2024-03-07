@@ -97,6 +97,34 @@ const LoaderContainer = styled.div`
   height: 100vh; // Adjust the height as needed
 `;
 
+const LeaderboardInfoRow = styled.div`
+background-image: linear-gradient(to top, #333333, #000000);
+  color: whitesmoke; // Example text color, adjust as needed
+  padding: 10px 15px 10px 15px; // Add padding to give some space inside the row
+  font-size: 20px;
+  display: flex; // Use flexbox to align items
+  justify-content: space-between;
+  align-items: center; // Center the content vertically
+  border-radius: 15px;
+  height: 45px;
+  margin-bottom: 5px;
+  font-weight: bold;
+
+  @media (max-width: 768px) { // Adjust breakpoint as needed
+    font-size: 12px;
+    height: 30px;
+  }
+`;
+
+type SlugExceptions = {
+  [key: string]: string;
+};
+
+// Define slug exceptions with the specific type
+const slugExceptions: SlugExceptions = {
+  "oblin": "6oblin",
+};
+
 const SEIPriceTicker: React.FC = () => {
     const [seiPriceInfo, setSeiPriceInfo] = useState({
       price: 'Loading...',
@@ -296,7 +324,12 @@ const Home = () => {
                     )}
                     </ConnectWalletButtonContainer>
                 </C.Header>
-                {/* Overlay for Access Granted Message */}
+                {showLeaderboard && !selectedCollectionSlug && wallet && (
+                    <LeaderboardInfoRow>
+                      <p>PFP Power Ranking</p>
+                      <p>24 HR Stats</p>
+                    </LeaderboardInfoRow>
+                )}
                 {showAccessGranted && (
                     <C.Overlay>
                     <C.AccessGranted>Access Granted</C.AccessGranted>
@@ -317,7 +350,8 @@ const Home = () => {
                     data={leaderboardData} 
                     onSelectCollection={(slug) => {
                       const cleanedSlug = cleanSlug(slug);
-                      setSelectedCollectionSlug(cleanedSlug);
+                      const exceptionSlug = slugExceptions[cleanedSlug] || cleanedSlug;
+                      setSelectedCollectionSlug(exceptionSlug);
                       setShowLeaderboard(false); // This hides the leaderboard once a collection is selected
                     }}
                     // Optionally pass isLoading if you want to handle it inside Leaderboard

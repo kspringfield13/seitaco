@@ -175,13 +175,15 @@ padding-top: 5px;
 `;
 
 const Icon = styled.img`
-width: 45px;
-height: 45px;
-margin-right: 20px;
+width: 35px;
+height: 35px;
+margin-right: 25px;
+margin-top: 5px;
 
 @media (max-width: 768px) {
     width: 25px;
     height: 25px;
+    margin-top: 0px;
   }
 `;
 

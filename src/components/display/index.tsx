@@ -39,15 +39,20 @@ const Image = styled.img`
   }
 
   @media (max-width: 768px) {
-    max-width: 300px;
+    max-width: 350px;
   }
 `;
 
 const Message = styled.p`
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   margin-bottom: 20px;
   margin-top: 5px;
+
+  @media (max-width: 1200px) {
+    font-size: 1.6em;
+  }
+  
   @media (max-width: 768px) {
     font-size: 1.3em;
   }
